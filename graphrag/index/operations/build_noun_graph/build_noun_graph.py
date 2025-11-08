@@ -75,14 +75,10 @@ async def _extract_nodes(
     )
 
     noun_node_df = text_unit_df.explode("noun_phrases")
-    noun_node_df = noun_node_df.rename(
-        columns={"noun_phrases": "title", "id": "text_unit_id"}
-    )
+    noun_node_df = noun_node_df.rename(columns={"noun_phrases": "title", "id": "text_unit_id"})
 
     # group by title and count the number of text units
-    grouped_node_df = (
-        noun_node_df.groupby("title").agg({"text_unit_id": list}).reset_index()
-    )
+    grouped_node_df = noun_node_df.groupby("title").agg({"text_unit_id": list}).reset_index()
     grouped_node_df = grouped_node_df.rename(columns={"text_unit_id": "text_unit_ids"})
     grouped_node_df["frequency"] = grouped_node_df["text_unit_ids"].apply(len)
     grouped_node_df = grouped_node_df[["title", "frequency", "text_unit_ids"]]
@@ -104,9 +100,7 @@ def _extract_edges(
     text_units_df = text_units_df.rename(columns={"text_unit_ids": "text_unit_id"})
 
     text_units_df = (
-        text_units_df.groupby("text_unit_id")
-        .agg({"title": lambda x: list(x) if len(x) > 1 else np.nan})
-        .reset_index()
+        text_units_df.groupby("text_unit_id").agg({"title": lambda x: list(x) if len(x) > 1 else np.nan}).reset_index()
     )
     text_units_df = text_units_df.dropna()
     titles = text_units_df["title"].tolist()
@@ -125,14 +119,10 @@ def _extract_edges(
     edge_df = edge_df[(edge_df.source.notna()) & (edge_df.target.notna())]
     edge_df = edge_df.drop(columns=["edges"])
     # group by source and target, count the number of text units
-    grouped_edge_df = (
-        edge_df.groupby(["source", "target"]).agg({"text_unit_id": list}).reset_index()
-    )
+    grouped_edge_df = edge_df.groupby(["source", "target"]).agg({"text_unit_id": list}).reset_index()
     grouped_edge_df = grouped_edge_df.rename(columns={"text_unit_id": "text_unit_ids"})
     grouped_edge_df["weight"] = grouped_edge_df["text_unit_ids"].apply(len)
-    grouped_edge_df = grouped_edge_df.loc[
-        :, ["source", "target", "weight", "text_unit_ids"]
-    ]
+    grouped_edge_df = grouped_edge_df.loc[:, ["source", "target", "weight", "text_unit_ids"]]
     if normalize_edge_weights:
         # use PMI weight instead of raw weight
         grouped_edge_df = calculate_pmi_edge_weights(nodes_df, grouped_edge_df)

@@ -18,11 +18,7 @@ async def run_workflow(  # noqa: RUF029
 ) -> WorkflowFunctionOutput:
     """Clean the state after the update."""
     logger.info("Workflow started: update_clean_state")
-    keys_to_delete = [
-        key_name
-        for key_name in context.state
-        if key_name.startswith("incremental_update_")
-    ]
+    keys_to_delete = [key_name for key_name in context.state if key_name.startswith("incremental_update_")]
 
     for key_name in keys_to_delete:
         del context.state[key_name]

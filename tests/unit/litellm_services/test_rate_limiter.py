@@ -50,9 +50,7 @@ def test_rate_limiter_validation():
     """Test that the rate limiter can be created with valid parameters."""
 
     # Valid parameters
-    rate_limiter = rate_limiter_factory.create(
-        strategy="static", rpm=60, tpm=10000, period_in_seconds=60
-    )
+    rate_limiter = rate_limiter_factory.create(strategy="static", rpm=60, tpm=10000, period_in_seconds=60)
     assert rate_limiter is not None
 
     # Invalid strategy
@@ -84,17 +82,13 @@ def test_rate_limiter_validation():
         rate_limiter_factory.create(strategy="static", tpm=-10)
 
     # Invalid period_in_seconds
-    with pytest.raises(
-        ValueError, match=r"Period in seconds must be a positive integer."
-    ):
+    with pytest.raises(ValueError, match=r"Period in seconds must be a positive integer."):
         rate_limiter_factory.create(strategy="static", rpm=10, period_in_seconds=-10)
 
 
 def test_rpm():
     """Test that the rate limiter enforces RPM limits."""
-    rate_limiter = rate_limiter_factory.create(
-        strategy="static", rpm=_rpm, period_in_seconds=_period_in_seconds
-    )
+    rate_limiter = rate_limiter_factory.create(strategy="static", rpm=_rpm, period_in_seconds=_period_in_seconds)
 
     time_values: list[float] = []
     start_time = time.time()
@@ -120,9 +114,7 @@ def test_rpm():
 
 def test_tpm():
     """Test that the rate limiter enforces TPM limits."""
-    rate_limiter = rate_limiter_factory.create(
-        strategy="static", tpm=_tpm, period_in_seconds=_period_in_seconds
-    )
+    rate_limiter = rate_limiter_factory.create(strategy="static", tpm=_tpm, period_in_seconds=_period_in_seconds)
 
     time_values: list[float] = []
     start_time = time.time()
@@ -153,9 +145,7 @@ def test_token_in_request_exceeds_tpm():
     greater than the tpm limit but still below the context window limit of the underlying model.
     In this case, the request should still be allowed to proceed but may take up its own rate limit bin.
     """
-    rate_limiter = rate_limiter_factory.create(
-        strategy="static", tpm=_tpm, period_in_seconds=_period_in_seconds
-    )
+    rate_limiter = rate_limiter_factory.create(strategy="static", tpm=_tpm, period_in_seconds=_period_in_seconds)
 
     time_values: list[float] = []
     start_time = time.time()

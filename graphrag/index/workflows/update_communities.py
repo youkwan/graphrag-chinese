@@ -22,13 +22,9 @@ async def run_workflow(
 ) -> WorkflowFunctionOutput:
     """Update the communities from a incremental index run."""
     logger.info("Workflow started: update_communities")
-    output_storage, previous_storage, delta_storage = get_update_storages(
-        config, context.state["update_timestamp"]
-    )
+    output_storage, previous_storage, delta_storage = get_update_storages(config, context.state["update_timestamp"])
 
-    community_id_mapping = await _update_communities(
-        previous_storage, delta_storage, output_storage
-    )
+    community_id_mapping = await _update_communities(previous_storage, delta_storage, output_storage)
 
     context.state["incremental_update_community_id_mapping"] = community_id_mapping
 
@@ -44,9 +40,7 @@ async def _update_communities(
     """Update the communities output."""
     old_communities = await load_table_from_storage("communities", previous_storage)
     delta_communities = await load_table_from_storage("communities", delta_storage)
-    merged_communities, community_id_mapping = _update_and_merge_communities(
-        old_communities, delta_communities
-    )
+    merged_communities, community_id_mapping = _update_and_merge_communities(old_communities, delta_communities)
 
     await write_table_to_storage(merged_communities, "communities", output_storage)
 

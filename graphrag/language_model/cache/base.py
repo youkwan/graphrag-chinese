@@ -17,9 +17,7 @@ class ModelCache(Protocol):
         """Retrieve a value from the cache."""
         ...
 
-    async def set(
-        self, key: str, value: Any, metadata: dict[str, Any] | None = None
-    ) -> None:
+    async def set(self, key: str, value: Any, metadata: dict[str, Any] | None = None) -> None:
         """Write a value into the cache."""
         ...
 

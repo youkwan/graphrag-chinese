@@ -9,9 +9,7 @@ from typing import Any
 import numpy as np
 
 
-def _get_value(
-    data: Mapping[str, Any], column_name: str | None, required: bool = True
-) -> Any:
+def _get_value(data: Mapping[str, Any], column_name: str | None, required: bool = True) -> Any:
     """
     Retrieve a column value from data.
 
@@ -46,9 +44,7 @@ def to_optional_str(data: Mapping[str, Any], column_name: str | None) -> str | N
     return None if value is None else str(value)
 
 
-def to_list(
-    data: Mapping[str, Any], column_name: str | None, item_type: type | None = None
-) -> list:
+def to_list(data: Mapping[str, Any], column_name: str | None, item_type: type | None = None) -> list:
     """Convert and validate a value to a list."""
     value = _get_value(data, column_name, required=True)
     if isinstance(value, np.ndarray):
@@ -64,9 +60,7 @@ def to_list(
     return value
 
 
-def to_optional_list(
-    data: Mapping[str, Any], column_name: str | None, item_type: type | None = None
-) -> list | None:
+def to_optional_list(data: Mapping[str, Any], column_name: str | None, item_type: type | None = None) -> list | None:
     """Convert and validate a value to an optional list."""
     if column_name is None or column_name not in data:
         return None

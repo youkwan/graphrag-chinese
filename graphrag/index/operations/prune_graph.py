@@ -35,22 +35,14 @@ def prune_graph(
         graph.remove_nodes_from([ego_node[0]])
 
     # remove nodes that are not within the predefined degree range
-    graph.remove_nodes_from([
-        node for node, degree in degrees if degree < min_node_degree
-    ])
+    graph.remove_nodes_from([node for node, degree in degrees if degree < min_node_degree])
     if max_node_degree_std is not None:
-        upper_threshold = _get_upper_threshold_by_std(
-            [degree for _, degree in degrees], max_node_degree_std
-        )
-        graph.remove_nodes_from([
-            node for node, degree in degrees if degree > upper_threshold
-        ])
+        upper_threshold = _get_upper_threshold_by_std([degree for _, degree in degrees], max_node_degree_std)
+        graph.remove_nodes_from([node for node, degree in degrees if degree > upper_threshold])
 
     # remove nodes that are not within the predefined frequency range
     graph.remove_nodes_from([
-        node
-        for node, data in graph.nodes(data=True)
-        if data[schemas.NODE_FREQUENCY] < min_node_freq
+        node for node, data in graph.nodes(data=True) if data[schemas.NODE_FREQUENCY] < min_node_freq
     ])
     if max_node_freq_std is not None:
         upper_threshold = _get_upper_threshold_by_std(
@@ -58,9 +50,7 @@ def prune_graph(
             max_node_freq_std,
         )
         graph.remove_nodes_from([
-            node
-            for node, data in graph.nodes(data=True)
-            if data[schemas.NODE_FREQUENCY] > upper_threshold
+            node for node, data in graph.nodes(data=True) if data[schemas.NODE_FREQUENCY] > upper_threshold
         ])
 
     # remove edges by min weight
@@ -72,9 +62,7 @@ def prune_graph(
         graph.remove_edges_from([
             (source, target)
             for source, target, data in graph.edges(data=True)
-            if source in graph.nodes()
-            and target in graph.nodes()
-            and data[schemas.EDGE_WEIGHT] < min_edge_weight
+            if source in graph.nodes() and target in graph.nodes() and data[schemas.EDGE_WEIGHT] < min_edge_weight
         ])
 
     if lcc_only:
@@ -83,9 +71,7 @@ def prune_graph(
     return graph
 
 
-def _get_upper_threshold_by_std(
-    data: list[float] | list[int], std_trim: float
-) -> float:
+def _get_upper_threshold_by_std(data: list[float] | list[int], std_trim: float) -> float:
     """Get upper threshold by standard deviation."""
     mean = np.mean(data)
     std = np.std(data)

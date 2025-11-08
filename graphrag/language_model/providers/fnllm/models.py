@@ -64,9 +64,7 @@ class OpenAIChatFNLLM:
         )
         self.config = config
 
-    async def achat(
-        self, prompt: str, history: list | None = None, **kwargs
-    ) -> ModelResponse:
+    async def achat(self, prompt: str, history: list | None = None, **kwargs) -> ModelResponse:
         """
         Chat with the Model using the given prompt.
 
@@ -94,9 +92,7 @@ class OpenAIChatFNLLM:
             metrics=response.metrics,
         )
 
-    async def achat_stream(
-        self, prompt: str, history: list | None = None, **kwargs
-    ) -> AsyncGenerator[str, None]:
+    async def achat_stream(self, prompt: str, history: list | None = None, **kwargs) -> AsyncGenerator[str, None]:
         """
         Stream Chat with the Model using the given prompt.
 
@@ -130,9 +126,7 @@ class OpenAIChatFNLLM:
         """
         return run_coroutine_sync(self.achat(prompt, history=history, **kwargs))
 
-    def chat_stream(
-        self, prompt: str, history: list | None = None, **kwargs
-    ) -> Generator[str, None]:
+    def chat_stream(self, prompt: str, history: list | None = None, **kwargs) -> Generator[str, None]:
         """
         Stream Chat with the Model using the given prompt.
 
@@ -265,9 +259,7 @@ class AzureOpenAIChatFNLLM:
         )
         self.config = config
 
-    async def achat(
-        self, prompt: str, history: list | None = None, **kwargs
-    ) -> ModelResponse:
+    async def achat(self, prompt: str, history: list | None = None, **kwargs) -> ModelResponse:
         """
         Chat with the Model using the given prompt.
 
@@ -296,9 +288,7 @@ class AzureOpenAIChatFNLLM:
             metrics=response.metrics,
         )
 
-    async def achat_stream(
-        self, prompt: str, history: list | None = None, **kwargs
-    ) -> AsyncGenerator[str, None]:
+    async def achat_stream(self, prompt: str, history: list | None = None, **kwargs) -> AsyncGenerator[str, None]:
         """
         Stream Chat with the Model using the given prompt.
 
@@ -333,9 +323,7 @@ class AzureOpenAIChatFNLLM:
         """
         return run_coroutine_sync(self.achat(prompt, history=history, **kwargs))
 
-    def chat_stream(
-        self, prompt: str, history: list | None = None, **kwargs
-    ) -> Generator[str, None]:
+    def chat_stream(self, prompt: str, history: list | None = None, **kwargs) -> Generator[str, None]:
         """
         Stream Chat with the Model using the given prompt.
 

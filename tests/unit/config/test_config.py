@@ -35,9 +35,7 @@ def test_missing_openai_required_api_key() -> None:
         create_graphrag_config({"models": model_config_missing_api_key})
 
     # API Key required for OpenAIEmbedding
-    model_config_missing_api_key[defs.DEFAULT_CHAT_MODEL_ID]["type"] = (
-        ModelType.OpenAIEmbedding
-    )
+    model_config_missing_api_key[defs.DEFAULT_CHAT_MODEL_ID]["type"] = ModelType.OpenAIEmbedding
     with pytest.raises(ValidationError):
         create_graphrag_config({"models": model_config_missing_api_key})
 
@@ -59,9 +57,7 @@ def test_missing_azure_api_key() -> None:
         create_graphrag_config({"models": model_config_missing_api_key})
 
     # API Key not required for managed identity
-    model_config_missing_api_key[defs.DEFAULT_CHAT_MODEL_ID]["auth_type"] = (
-        AuthType.AzureManagedIdentity
-    )
+    model_config_missing_api_key[defs.DEFAULT_CHAT_MODEL_ID]["auth_type"] = AuthType.AzureManagedIdentity
     create_graphrag_config({"models": model_config_missing_api_key})
 
 

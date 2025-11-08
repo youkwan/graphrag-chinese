@@ -38,9 +38,7 @@ class ProgressTicker:
     _num_total: int
     _num_complete: int
 
-    def __init__(
-        self, callback: ProgressHandler | None, num_total: int, description: str = ""
-    ):
+    def __init__(self, callback: ProgressHandler | None, num_total: int, description: str = ""):
         self._callback = callback
         self._description = description
         self._num_total = num_total
@@ -71,9 +69,7 @@ class ProgressTicker:
             )
 
 
-def progress_ticker(
-    callback: ProgressHandler | None, num_total: int, description: str = ""
-) -> ProgressTicker:
+def progress_ticker(callback: ProgressHandler | None, num_total: int, description: str = "") -> ProgressTicker:
     """Create a progress ticker."""
     return ProgressTicker(callback, num_total, description=description)
 

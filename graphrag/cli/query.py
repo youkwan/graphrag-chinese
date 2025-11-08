@@ -492,9 +492,7 @@ def _resolve_output_files(
             for name in output_list:
                 if name not in dataframe_dict:
                     dataframe_dict[name] = []
-                df_value = asyncio.run(
-                    load_table_from_storage(name=name, storage=storage_obj)
-                )
+                df_value = asyncio.run(load_table_from_storage(name=name, storage=storage_obj))
                 dataframe_dict[name].append(df_value)
 
             # for optional output files, do not append if the dataframe does not exist
@@ -502,15 +500,9 @@ def _resolve_output_files(
                 for optional_file in optional_list:
                     if optional_file not in dataframe_dict:
                         dataframe_dict[optional_file] = []
-                    file_exists = asyncio.run(
-                        storage_has_table(optional_file, storage_obj)
-                    )
+                    file_exists = asyncio.run(storage_has_table(optional_file, storage_obj))
                     if file_exists:
-                        df_value = asyncio.run(
-                            load_table_from_storage(
-                                name=optional_file, storage=storage_obj
-                            )
-                        )
+                        df_value = asyncio.run(load_table_from_storage(name=optional_file, storage=storage_obj))
                         dataframe_dict[optional_file].append(df_value)
         return dataframe_dict
     # Loading output files for single-index search
@@ -525,9 +517,7 @@ def _resolve_output_files(
         for optional_file in optional_list:
             file_exists = asyncio.run(storage_has_table(optional_file, storage_obj))
             if file_exists:
-                df_value = asyncio.run(
-                    load_table_from_storage(name=optional_file, storage=storage_obj)
-                )
+                df_value = asyncio.run(load_table_from_storage(name=optional_file, storage=storage_obj))
                 dataframe_dict[optional_file] = df_value
             else:
                 dataframe_dict[optional_file] = None

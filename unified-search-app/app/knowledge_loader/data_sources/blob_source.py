@@ -50,9 +50,7 @@ def load_blob_prompt_config(
     prefix = f"{dataset}/prompts"
     for file in container_client.list_blobs(name_starts_with=prefix):
         map_name = file.name.split("/")[-1].split(".")[0]
-        prompts[map_name] = (
-            container_client.download_blob(file.name).readall().decode("utf-8")
-        )
+        prompts[map_name] = container_client.download_blob(file.name).readall().decode("utf-8")
 
     return prompts
 

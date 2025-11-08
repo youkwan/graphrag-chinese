@@ -152,9 +152,7 @@ def split_multiple_texts_on_tokens(
             tick(1)  # Track progress if tick callback is provided
         mapped_ids.append((source_doc_idx, encoded))
 
-    input_ids = [
-        (source_doc_idx, id) for source_doc_idx, ids in mapped_ids for id in ids
-    ]
+    input_ids = [(source_doc_idx, id) for source_doc_idx, ids in mapped_ids for id in ids]
 
     start_idx = 0
     cur_idx = min(start_idx + tokenizer.tokens_per_chunk, len(input_ids))

@@ -24,14 +24,10 @@ async def run_workflow(
 ) -> WorkflowFunctionOutput:
     """Update the text units from a incremental index run."""
     logger.info("Workflow started: update_text_units")
-    output_storage, previous_storage, delta_storage = get_update_storages(
-        config, context.state["update_timestamp"]
-    )
+    output_storage, previous_storage, delta_storage = get_update_storages(config, context.state["update_timestamp"])
     entity_id_mapping = context.state["incremental_update_entity_id_mapping"]
 
-    merged_text_units = await _update_text_units(
-        previous_storage, delta_storage, output_storage, entity_id_mapping
-    )
+    merged_text_units = await _update_text_units(previous_storage, delta_storage, output_storage, entity_id_mapping)
 
     context.state["incremental_update_merged_text_units"] = merged_text_units
 
@@ -48,9 +44,7 @@ async def _update_text_units(
     """Update the text units output."""
     old_text_units = await load_table_from_storage("text_units", previous_storage)
     delta_text_units = await load_table_from_storage("text_units", delta_storage)
-    merged_text_units = _update_and_merge_text_units(
-        old_text_units, delta_text_units, entity_id_mapping
-    )
+    merged_text_units = _update_and_merge_text_units(old_text_units, delta_text_units, entity_id_mapping)
 
     await write_table_to_storage(merged_text_units, "text_units", output_storage)
 
@@ -85,8 +79,6 @@ def _update_and_merge_text_units(
         )
 
     initial_id = old_text_units["human_readable_id"].max() + 1
-    delta_text_units["human_readable_id"] = np.arange(
-        initial_id, initial_id + len(delta_text_units)
-    )
+    delta_text_units["human_readable_id"] = np.arange(initial_id, initial_id + len(delta_text_units))
     # Merge the final text units
     return pd.concat([old_text_units, delta_text_units], ignore_index=True, copy=False)

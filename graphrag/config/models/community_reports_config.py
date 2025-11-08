@@ -39,9 +39,7 @@ class CommunityReportsConfig(BaseModel):
         default=graphrag_config_defaults.community_reports.strategy,
     )
 
-    def resolved_strategy(
-        self, root_dir: str, model_config: LanguageModelConfig
-    ) -> dict:
+    def resolved_strategy(self, root_dir: str, model_config: LanguageModelConfig) -> dict:
         """Get the resolved community report extraction strategy."""
         from graphrag.index.operations.summarize_communities.typing import (
             CreateCommunityReportsStrategyType,
@@ -50,14 +48,10 @@ class CommunityReportsConfig(BaseModel):
         return self.strategy or {
             "type": CreateCommunityReportsStrategyType.graph_intelligence,
             "llm": model_config.model_dump(),
-            "graph_prompt": (Path(root_dir) / self.graph_prompt).read_text(
-                encoding="utf-8"
-            )
+            "graph_prompt": (Path(root_dir) / self.graph_prompt).read_text(encoding="utf-8")
             if self.graph_prompt
             else None,
-            "text_prompt": (Path(root_dir) / self.text_prompt).read_text(
-                encoding="utf-8"
-            )
+            "text_prompt": (Path(root_dir) / self.text_prompt).read_text(encoding="utf-8")
             if self.text_prompt
             else None,
             "max_report_length": self.max_length,

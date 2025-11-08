@@ -45,9 +45,7 @@ class LanguageModelConfig(BaseModel):
         ApiKeyMissingError
             If the API key is missing and is required.
         """
-        if self.auth_type == AuthType.APIKey and (
-            self.api_key is None or self.api_key.strip() == ""
-        ):
+        if self.auth_type == AuthType.APIKey and (self.api_key is None or self.api_key.strip() == ""):
             raise ApiKeyMissingError(
                 self.type,
                 self.auth_type.value,
@@ -153,11 +151,7 @@ class LanguageModelConfig(BaseModel):
         KeyError
             If the model name is not recognized.
         """
-        if (
-            self.type != ModelType.Chat
-            and self.type != ModelType.Embedding
-            and self.encoding_model.strip() == ""
-        ):
+        if self.type != ModelType.Chat and self.type != ModelType.Embedding and self.encoding_model.strip() == "":
             self.encoding_model = tiktoken.encoding_name_for_model(self.model)
 
     api_base: str | None = Field(
@@ -333,9 +327,7 @@ class LanguageModelConfig(BaseModel):
         description="Whether to use concurrent requests for the LLM service.",
         default=language_model_defaults.concurrent_requests,
     )
-    async_mode: AsyncType = Field(
-        description="The async mode to use.", default=language_model_defaults.async_mode
-    )
+    async_mode: AsyncType = Field(description="The async mode to use.", default=language_model_defaults.async_mode)
     responses: list[str | BaseModel] | None = Field(
         default=language_model_defaults.responses,
         description="Static responses to use in mock mode.",

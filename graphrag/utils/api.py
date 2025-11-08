@@ -34,9 +34,7 @@ class MultiVectorStore(BaseVectorStore):
         self.embedding_stores = embedding_stores
         self.index_names = index_names
 
-    def load_documents(
-        self, documents: list[VectorStoreDocument], overwrite: bool = True
-    ) -> None:
+    def load_documents(self, documents: list[VectorStoreDocument], overwrite: bool = True) -> None:
         """Load documents into the vector store."""
         msg = "load_documents method not implemented"
         raise NotImplementedError(msg)
@@ -55,9 +53,7 @@ class MultiVectorStore(BaseVectorStore):
         """Search for a document by id."""
         search_index_id = id.split("-")[0]
         search_index_name = id.split("-")[1]
-        for index_name, embedding_store in zip(
-            self.index_names, self.embedding_stores, strict=False
-        ):
+        for index_name, embedding_store in zip(self.index_names, self.embedding_stores, strict=False):
             if index_name == search_index_name:
                 return embedding_store.search_by_id(search_index_id)
         else:
@@ -69,12 +65,8 @@ class MultiVectorStore(BaseVectorStore):
     ) -> list[VectorStoreSearchResult]:
         """Perform a vector-based similarity search."""
         all_results = []
-        for index_name, embedding_store in zip(
-            self.index_names, self.embedding_stores, strict=False
-        ):
-            results = embedding_store.similarity_search_by_vector(
-                query_embedding=query_embedding, k=k
-            )
+        for index_name, embedding_store in zip(self.index_names, self.embedding_stores, strict=False):
+            results = embedding_store.similarity_search_by_vector(query_embedding=query_embedding, k=k)
             mod_results = []
             for r in results:
                 r.document.id = str(r.document.id) + f"-{index_name}"
@@ -88,9 +80,7 @@ class MultiVectorStore(BaseVectorStore):
         """Perform a text-based similarity search."""
         query_embedding = text_embedder(text)
         if query_embedding:
-            return self.similarity_search_by_vector(
-                query_embedding=query_embedding, k=k
-            )
+            return self.similarity_search_by_vector(query_embedding=query_embedding, k=k)
         return []
 
 
@@ -104,20 +94,12 @@ def get_embedding_store(
     index_names = []
     for index, store in config_args.items():
         vector_store_type = store["type"]
-        index_name = create_index_name(
-            store.get("container_name", "default"), embedding_name
-        )
+        index_name = create_index_name(store.get("container_name", "default"), embedding_name)
 
-        embeddings_schema: dict[str, VectorStoreSchemaConfig] = store.get(
-            "embeddings_schema", {}
-        )
+        embeddings_schema: dict[str, VectorStoreSchemaConfig] = store.get("embeddings_schema", {})
         single_embedding_config: VectorStoreSchemaConfig = VectorStoreSchemaConfig()
 
-        if (
-            embeddings_schema is not None
-            and embedding_name is not None
-            and embedding_name in embeddings_schema
-        ):
+        if embeddings_schema is not None and embedding_name is not None and embedding_name in embeddings_schema:
             raw_config = embeddings_schema[embedding_name]
             if isinstance(raw_config, dict):
                 single_embedding_config = VectorStoreSchemaConfig(**raw_config)
@@ -196,9 +178,7 @@ def update_context_data(
             updated_entry = [
                 dict(
                     entry,
-                    index_name=links["community_reports"][int(entry["id"])][
-                        "index_name"
-                    ],
+                    index_name=links["community_reports"][int(entry["id"])]["index_name"],
                     index_id=links["community_reports"][int(entry["id"])]["id"],
                 )
                 for entry in entries

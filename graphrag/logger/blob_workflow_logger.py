@@ -43,9 +43,7 @@ class BlobWorkflowLogger(logging.Handler):
         self._storage_account_blob_url = storage_account_blob_url
 
         if self._connection_string:
-            self._blob_service_client = BlobServiceClient.from_connection_string(
-                self._connection_string
-            )
+            self._blob_service_client = BlobServiceClient.from_connection_string(self._connection_string)
         else:
             if storage_account_blob_url is None:
                 msg = "Either connection_string or storage_account_blob_url must be provided."
@@ -61,9 +59,7 @@ class BlobWorkflowLogger(logging.Handler):
 
         self._blob_name = str(Path(base_dir or "") / blob_name)
         self._container_name = container_name
-        self._blob_client = self._blob_service_client.get_blob_client(
-            self._container_name, self._blob_name
-        )
+        self._blob_client = self._blob_service_client.get_blob_client(self._container_name, self._blob_name)
         if not self._blob_client.exists():
             self._blob_client.create_append_blob()
 
@@ -101,18 +97,14 @@ class BlobWorkflowLogger(logging.Handler):
     def _write_log(self, log: dict[str, Any]):
         """Write log data to blob storage."""
         # create a new file when block count hits close 25k
-        if (
-            self._num_blocks >= self._max_block_count
-        ):  # Check if block count exceeds 25k
+        if self._num_blocks >= self._max_block_count:  # Check if block count exceeds 25k
             self.__init__(
                 self._connection_string,
                 self._container_name,
                 storage_account_blob_url=self._storage_account_blob_url,
             )
 
-        blob_client = self._blob_service_client.get_blob_client(
-            self._container_name, self._blob_name
-        )
+        blob_client = self._blob_service_client.get_blob_client(self._container_name, self._blob_name)
         blob_client.append_block(json.dumps(log, indent=4, ensure_ascii=False) + "\n")
 
         # update the blob's block count

@@ -50,9 +50,7 @@ async def rate_relevancy(
     ]
     for _ in range(num_repeats):
         async with semaphore if semaphore is not None else nullcontext():
-            model_response = await model.achat(
-                prompt=query, history=messages, model_parameters=model_params, json=True
-            )
+            model_response = await model.achat(prompt=query, history=messages, model_parameters=model_params, json=True)
             response = model_response.output.content
         try:
             _, parsed_response = try_parse_json_object(response)

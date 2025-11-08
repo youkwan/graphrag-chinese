@@ -31,9 +31,7 @@ class InputDelta:
     deleted_inputs: pd.DataFrame
 
 
-async def get_delta_docs(
-    input_dataset: pd.DataFrame, storage: PipelineStorage
-) -> InputDelta:
+async def get_delta_docs(input_dataset: pd.DataFrame, storage: PipelineStorage) -> InputDelta:
     """Get the delta between the input dataset and the final documents.
 
     Parameters

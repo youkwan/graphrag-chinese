@@ -26,9 +26,7 @@ def validate_config_names(parameters: GraphRagConfig) -> None:
                 cache=None,
             )
             try:
-                asyncio.run(
-                    llm.achat("This is an LLM connectivity test. Say Hello World")
-                )
+                asyncio.run(llm.achat("This is an LLM connectivity test. Say Hello World"))
                 logger.info("LLM Config Params Validated")
             except Exception as e:  # noqa: BLE001
                 logger.error(f"LLM configuration error detected.\n{e}")  # noqa
@@ -43,9 +41,7 @@ def validate_config_names(parameters: GraphRagConfig) -> None:
                 cache=None,
             )
             try:
-                asyncio.run(
-                    embed_llm.aembed_batch(["This is an LLM Embedding Test String"])
-                )
+                asyncio.run(embed_llm.aembed_batch(["This is an LLM Embedding Test String"]))
                 logger.info("Embedding LLM Config Params Validated")
             except Exception as e:  # noqa: BLE001
                 logger.error(f"Embedding configuration error detected.\n{e}")  # noqa

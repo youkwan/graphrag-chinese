@@ -68,25 +68,15 @@ class ClaimExtractor:
         self._input_entity_spec_key = input_entity_spec_key or "entity_specs"
         self._tuple_delimiter_key = tuple_delimiter_key or "tuple_delimiter"
         self._record_delimiter_key = record_delimiter_key or "record_delimiter"
-        self._completion_delimiter_key = (
-            completion_delimiter_key or "completion_delimiter"
-        )
-        self._input_claim_description_key = (
-            input_claim_description_key or "claim_description"
-        )
-        self._input_resolved_entities_key = (
-            input_resolved_entities_key or "resolved_entities"
-        )
+        self._completion_delimiter_key = completion_delimiter_key or "completion_delimiter"
+        self._input_claim_description_key = input_claim_description_key or "claim_description"
+        self._input_resolved_entities_key = input_resolved_entities_key or "resolved_entities"
         self._max_gleanings = (
-            max_gleanings
-            if max_gleanings is not None
-            else graphrag_config_defaults.extract_claims.max_gleanings
+            max_gleanings if max_gleanings is not None else graphrag_config_defaults.extract_claims.max_gleanings
         )
         self._on_error = on_error or (lambda _e, _s, _d: None)
 
-    async def __call__(
-        self, inputs: dict[str, Any], prompt_variables: dict | None = None
-    ) -> ClaimExtractorResult:
+    async def __call__(self, inputs: dict[str, Any], prompt_variables: dict | None = None) -> ClaimExtractorResult:
         """Call method definition."""
         if prompt_variables is None:
             prompt_variables = {}
@@ -99,13 +89,9 @@ class ClaimExtractor:
         prompt_args = {
             self._input_entity_spec_key: entity_spec,
             self._input_claim_description_key: claim_description,
-            self._tuple_delimiter_key: prompt_variables.get(self._tuple_delimiter_key)
-            or DEFAULT_TUPLE_DELIMITER,
-            self._record_delimiter_key: prompt_variables.get(self._record_delimiter_key)
-            or DEFAULT_RECORD_DELIMITER,
-            self._completion_delimiter_key: prompt_variables.get(
-                self._completion_delimiter_key
-            )
+            self._tuple_delimiter_key: prompt_variables.get(self._tuple_delimiter_key) or DEFAULT_TUPLE_DELIMITER,
+            self._record_delimiter_key: prompt_variables.get(self._record_delimiter_key) or DEFAULT_RECORD_DELIMITER,
+            self._completion_delimiter_key: prompt_variables.get(self._completion_delimiter_key)
             or DEFAULT_COMPLETION_DELIMITER,
         }
 
@@ -114,9 +100,7 @@ class ClaimExtractor:
             document_id = f"d{doc_index}"
             try:
                 claims = await self._process_document(prompt_args, text, doc_index)
-                all_claims += [
-                    self._clean_claim(c, document_id, resolved_entities) for c in claims
-                ]
+                all_claims += [self._clean_claim(c, document_id, resolved_entities) for c in claims]
                 source_doc_map[document_id] = text
             except Exception as e:
                 logger.exception("error extracting claim")
@@ -132,9 +116,7 @@ class ClaimExtractor:
             source_docs=source_doc_map,
         )
 
-    def _clean_claim(
-        self, claim: dict, document_id: str, resolved_entities: dict
-    ) -> dict:
+    def _clean_claim(self, claim: dict, document_id: str, resolved_entities: dict) -> dict:
         # clean the parsed claims to remove any claims with status = False
         obj = claim.get("object_id", claim.get("object"))
         subject = claim.get("subject_id", claim.get("subject"))
@@ -146,15 +128,9 @@ class ClaimExtractor:
         claim["subject_id"] = subject
         return claim
 
-    async def _process_document(
-        self, prompt_args: dict, doc, doc_index: int
-    ) -> list[dict]:
-        record_delimiter = prompt_args.get(
-            self._record_delimiter_key, DEFAULT_RECORD_DELIMITER
-        )
-        completion_delimiter = prompt_args.get(
-            self._completion_delimiter_key, DEFAULT_COMPLETION_DELIMITER
-        )
+    async def _process_document(self, prompt_args: dict, doc, doc_index: int) -> list[dict]:
+        record_delimiter = prompt_args.get(self._record_delimiter_key, DEFAULT_RECORD_DELIMITER)
+        completion_delimiter = prompt_args.get(self._completion_delimiter_key, DEFAULT_COMPLETION_DELIMITER)
 
         response = await self._model.achat(
             self._extraction_prompt.format(**{
@@ -175,9 +151,7 @@ class ClaimExtractor:
                     history=response.history,
                 )
                 extension = response.output.content or ""
-                claims += record_delimiter + extension.strip().removesuffix(
-                    completion_delimiter
-                )
+                claims += record_delimiter + extension.strip().removesuffix(completion_delimiter)
 
                 # If this isn't the last loop, check to see if we should continue
                 if i >= self._max_gleanings - 1:
@@ -194,27 +168,17 @@ class ClaimExtractor:
 
         return self._parse_claim_tuples(results, prompt_args)
 
-    def _parse_claim_tuples(
-        self, claims: str, prompt_variables: dict
-    ) -> list[dict[str, Any]]:
+    def _parse_claim_tuples(self, claims: str, prompt_variables: dict) -> list[dict[str, Any]]:
         """Parse claim tuples."""
-        record_delimiter = prompt_variables.get(
-            self._record_delimiter_key, DEFAULT_RECORD_DELIMITER
-        )
-        completion_delimiter = prompt_variables.get(
-            self._completion_delimiter_key, DEFAULT_COMPLETION_DELIMITER
-        )
-        tuple_delimiter = prompt_variables.get(
-            self._tuple_delimiter_key, DEFAULT_TUPLE_DELIMITER
-        )
+        record_delimiter = prompt_variables.get(self._record_delimiter_key, DEFAULT_RECORD_DELIMITER)
+        completion_delimiter = prompt_variables.get(self._completion_delimiter_key, DEFAULT_COMPLETION_DELIMITER)
+        tuple_delimiter = prompt_variables.get(self._tuple_delimiter_key, DEFAULT_TUPLE_DELIMITER)
 
         def pull_field(index: int, fields: list[str]) -> str | None:
             return fields[index].strip() if len(fields) > index else None
 
         result: list[dict[str, Any]] = []
-        claims_values = (
-            claims.strip().removesuffix(completion_delimiter).split(record_delimiter)
-        )
+        claims_values = claims.strip().removesuffix(completion_delimiter).split(record_delimiter)
         for claim in claims_values:
             claim = claim.strip().removeprefix("(").removesuffix(")")
 

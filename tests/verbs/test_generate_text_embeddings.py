@@ -30,9 +30,7 @@ async def test_generate_text_embeddings():
     )
 
     config = create_graphrag_config({"models": DEFAULT_MODEL_CONFIG})
-    llm_settings = config.get_language_model_config(
-        config.embed_text.model_id
-    ).model_dump()
+    llm_settings = config.get_language_model_config(config.embed_text.model_id).model_dump()
     llm_settings["type"] = ModelType.MockEmbedding
 
     config.embed_text.strategy = {
@@ -59,9 +57,7 @@ async def test_generate_text_embeddings():
     assert "embedding" in entity_description_embeddings.columns
 
     # every other embedding is optional but we've turned them all on, so check a random one
-    document_text_embeddings = await load_table_from_storage(
-        "embeddings.document.text", context.output_storage
-    )
+    document_text_embeddings = await load_table_from_storage("embeddings.document.text", context.output_storage)
 
     assert len(document_text_embeddings.columns) == 2
     assert "id" in document_text_embeddings.columns

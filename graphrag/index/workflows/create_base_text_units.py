@@ -64,20 +64,14 @@ def create_base_text_units(
     """All the steps to transform base text_units."""
     sort = documents.sort_values(by=["id"], ascending=[True])
 
-    sort["text_with_ids"] = list(
-        zip(*[sort[col] for col in ["id", "text"]], strict=True)
-    )
+    sort["text_with_ids"] = list(zip(*[sort[col] for col in ["id", "text"]], strict=True))
 
     agg_dict = {"text_with_ids": list}
     if "metadata" in documents:
         agg_dict["metadata"] = "first"  # type: ignore
 
     aggregated = (
-        (
-            sort.groupby(group_by_columns, sort=False)
-            if len(group_by_columns) > 0
-            else sort.groupby(lambda _x: True)
-        )
+        (sort.groupby(group_by_columns, sort=False) if len(group_by_columns) > 0 else sort.groupby(lambda _x: True))
         .agg(agg_dict)
         .reset_index()
     )
@@ -93,16 +87,15 @@ def create_base_text_units(
             if isinstance(metadata, str):
                 metadata = json.loads(metadata)
             if isinstance(metadata, dict):
-                metadata_str = (
-                    line_delimiter.join(f"{k}: {v}" for k, v in metadata.items())
-                    + line_delimiter
-                )
+                metadata_str = line_delimiter.join(f"{k}: {v}" for k, v in metadata.items()) + line_delimiter
 
             if chunk_size_includes_metadata:
                 encode, _ = get_encoding_fn(encoding_model)
                 metadata_tokens = len(encode(metadata_str))
                 if metadata_tokens >= size:
-                    message = "Metadata tokens exceeds the maximum tokens per chunk. Please increase the tokens per chunk."
+                    message = (
+                        "Metadata tokens exceeds the maximum tokens per chunk. Please increase the tokens per chunk."
+                    )
                     raise ValueError(message)
 
         chunked = chunk_text(
@@ -120,9 +113,7 @@ def create_base_text_units(
                 if isinstance(chunk, str):
                     chunked[index] = metadata_str + chunk
                 else:
-                    chunked[index] = (
-                        (chunk[0], metadata_str + chunk[1], chunk[2]) if chunk else None
-                    )
+                    chunked[index] = (chunk[0], metadata_str + chunk[1], chunk[2]) if chunk else None
 
         row["chunks"] = chunked
         return row
@@ -137,9 +128,7 @@ def create_base_text_units(
         logger.info("chunker progress:  %d/%d", row_index + 1, total_rows)
         return result
 
-    aggregated = aggregated.apply(
-        lambda row: chunker_with_logging(row, row.name), axis=1
-    )
+    aggregated = aggregated.apply(lambda row: chunker_with_logging(row, row.name), axis=1)
 
     aggregated = cast("pd.DataFrame", aggregated[[*group_by_columns, "chunks"]])
     aggregated = aggregated.explode("chunks")
@@ -149,15 +138,11 @@ def create_base_text_units(
         },
         inplace=True,
     )
-    aggregated["id"] = aggregated.apply(
-        lambda row: gen_sha512_hash(row, ["chunk"]), axis=1
-    )
+    aggregated["id"] = aggregated.apply(lambda row: gen_sha512_hash(row, ["chunk"]), axis=1)
     aggregated[["document_ids", "chunk", "n_tokens"]] = pd.DataFrame(
         aggregated["chunk"].tolist(), index=aggregated.index
     )
     # rename for downstream consumption
     aggregated.rename(columns={"chunk": "text"}, inplace=True)
 
-    return cast(
-        "pd.DataFrame", aggregated[aggregated["text"].notna()].reset_index(drop=True)
-    )
+    return cast("pd.DataFrame", aggregated[aggregated["text"].notna()].reset_index(drop=True))

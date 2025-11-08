@@ -68,9 +68,7 @@ def _run_layout(
         return run_umap(
             graph,
             embeddings,
-            lambda e, stack, d: logger.error(
-                "Error in Umap", exc_info=e, extra={"stack": stack, "details": d}
-            ),
+            lambda e, stack, d: logger.error("Error in Umap", exc_info=e, extra={"stack": stack, "details": d}),
         )
     from graphrag.index.operations.layout_graph.zero import (
         run as run_zero,
@@ -78,7 +76,5 @@ def _run_layout(
 
     return run_zero(
         graph,
-        lambda e, stack, d: logger.error(
-            "Error in Zero", exc_info=e, extra={"stack": stack, "details": d}
-        ),
+        lambda e, stack, d: logger.error("Error in Zero", exc_info=e, extra={"stack": stack, "details": d}),
     )

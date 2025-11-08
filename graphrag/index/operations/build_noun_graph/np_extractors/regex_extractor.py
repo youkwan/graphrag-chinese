@@ -79,40 +79,27 @@ class RegexENNounPhraseExtractor(BaseNounPhraseExtractor):
         filtered_noun_phrases = set()
         for tagged_np in tagged_noun_phrases:
             if (
-                tagged_np["has_proper_nouns"]
-                or len(tagged_np["cleaned_tokens"]) > 1
-                or tagged_np["has_compound_words"]
+                tagged_np["has_proper_nouns"] or len(tagged_np["cleaned_tokens"]) > 1 or tagged_np["has_compound_words"]
             ) and tagged_np["has_valid_tokens"]:
                 filtered_noun_phrases.add(tagged_np["cleaned_text"])
         return list(filtered_noun_phrases)
 
-    def _tag_noun_phrases(
-        self, noun_phrase: str, all_proper_nouns: list[str] | None = None
-    ) -> dict[str, Any]:
+    def _tag_noun_phrases(self, noun_phrase: str, all_proper_nouns: list[str] | None = None) -> dict[str, Any]:
         """Extract attributes of a noun chunk, to be used for filtering."""
         if all_proper_nouns is None:
             all_proper_nouns = []
         tokens = [token for token in re.split(r"[\s]+", noun_phrase) if len(token) > 0]
-        cleaned_tokens = [
-            token for token in tokens if token.upper() not in self.exclude_nouns
-        ]
-        has_proper_nouns = any(
-            token.upper() in all_proper_nouns for token in cleaned_tokens
-        )
+        cleaned_tokens = [token for token in tokens if token.upper() not in self.exclude_nouns]
+        has_proper_nouns = any(token.upper() in all_proper_nouns for token in cleaned_tokens)
         has_compound_words = any(
-            "-" in token
-            and len(token.strip()) > 1
-            and len(token.strip().split("-")) > 1
-            for token in cleaned_tokens
+            "-" in token and len(token.strip()) > 1 and len(token.strip().split("-")) > 1 for token in cleaned_tokens
         )
-        has_valid_tokens = all(
-            re.match(r"^[a-zA-Z0-9\-]+\n?$", token) for token in cleaned_tokens
-        ) and all(len(token) <= self.max_word_length for token in cleaned_tokens)
+        has_valid_tokens = all(re.match(r"^[a-zA-Z0-9\-]+\n?$", token) for token in cleaned_tokens) and all(
+            len(token) <= self.max_word_length for token in cleaned_tokens
+        )
         return {
             "cleaned_tokens": cleaned_tokens,
-            "cleaned_text": self.word_delimiter.join(token for token in cleaned_tokens)
-            .replace("\n", "")
-            .upper(),
+            "cleaned_text": self.word_delimiter.join(token for token in cleaned_tokens).replace("\n", "").upper(),
             "has_proper_nouns": has_proper_nouns,
             "has_compound_words": has_compound_words,
             "has_valid_tokens": has_valid_tokens,

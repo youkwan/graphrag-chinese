@@ -137,9 +137,7 @@ def _parse(file_extension: str, contents: str) -> dict[str, Any]:
         case ".json":
             return json.loads(contents)
         case _:
-            msg = (
-                f"Unable to parse config. Unsupported file extension: {file_extension}"
-            )
+            msg = f"Unable to parse config. Unsupported file extension: {file_extension}"
             raise ValueError(msg)
 
 

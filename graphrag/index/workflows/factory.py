@@ -81,12 +81,8 @@ _update_workflows = [
     "update_text_embeddings",
     "update_clean_state",
 ]
-PipelineFactory.register_pipeline(
-    IndexingMethod.Standard, ["load_input_documents", *_standard_workflows]
-)
-PipelineFactory.register_pipeline(
-    IndexingMethod.Fast, ["load_input_documents", *_fast_workflows]
-)
+PipelineFactory.register_pipeline(IndexingMethod.Standard, ["load_input_documents", *_standard_workflows])
+PipelineFactory.register_pipeline(IndexingMethod.Fast, ["load_input_documents", *_fast_workflows])
 PipelineFactory.register_pipeline(
     IndexingMethod.StandardUpdate,
     ["load_update_documents", *_standard_workflows, *_update_workflows],

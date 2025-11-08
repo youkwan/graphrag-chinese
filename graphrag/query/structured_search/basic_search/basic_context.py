@@ -76,9 +76,7 @@ class BasicSearchContext(BasicContextBuilder):
         # add these related text chunks into context until we fill up the context window
         current_tokens = 0
         text_ids = []
-        current_tokens = len(
-            self.tokenizer.encode(text_id_col + column_delimiter + text_col + "\n")
-        )
+        current_tokens = len(self.tokenizer.encode(text_id_col + column_delimiter + text_col + "\n"))
         for i, row in related_text_df.iterrows():
             text = row[text_id_col] + column_delimiter + row[text_col] + "\n"
             tokens = len(self.tokenizer.encode(text))
@@ -91,13 +89,9 @@ class BasicSearchContext(BasicContextBuilder):
             text_ids.append(i)
         final_text_df = cast(
             "pd.DataFrame",
-            related_text_df[related_text_df.index.isin(text_ids)].reset_index(
-                drop=True
-            ),
+            related_text_df[related_text_df.index.isin(text_ids)].reset_index(drop=True),
         )
-        final_text = final_text_df.to_csv(
-            index=False, escapechar="\\", sep=column_delimiter
-        )
+        final_text = final_text_df.to_csv(index=False, escapechar="\\", sep=column_delimiter)
 
         return ContextBuilderResult(
             context_chunks=final_text,

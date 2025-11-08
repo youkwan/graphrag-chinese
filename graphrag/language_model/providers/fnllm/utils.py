@@ -57,12 +57,8 @@ def _create_error_handler(callbacks: WorkflowCallbacks) -> ErrorHandlerFn:  # no
 def _create_openai_config(config: LanguageModelConfig, azure: bool) -> OpenAIConfig:
     """Create an OpenAIConfig from a LanguageModelConfig."""
     encoding_model = config.encoding_model
-    json_strategy = (
-        JsonStrategy.VALID if config.model_supports_json else JsonStrategy.LOOSE
-    )
-    chat_parameters = OpenAIChatParameters(
-        **get_openai_model_parameters_from_config(config)
-    )
+    json_strategy = JsonStrategy.VALID if config.model_supports_json else JsonStrategy.LOOSE
+    chat_parameters = OpenAIChatParameters(**get_openai_model_parameters_from_config(config))
 
     if azure:
         if config.api_base is None:

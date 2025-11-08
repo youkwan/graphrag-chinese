@@ -16,9 +16,7 @@ WELL_KNOWN_COSMOS_CONNECTION_STRING = "AccountEndpoint=https://127.0.0.1:8081/;A
 
 # the cosmosdb emulator is only available on windows runners at this time
 if not sys.platform.startswith("win"):
-    pytest.skip(
-        "encountered windows-only tests -- will skip for now", allow_module_level=True
-    )
+    pytest.skip("encountered windows-only tests -- will skip for now", allow_module_level=True)
 
 
 async def test_find():
@@ -36,9 +34,7 @@ async def test_find():
             json_content = {
                 "content": "Merry Christmas!",
             }
-            await storage.set(
-                "christmas.json", json.dumps(json_content), encoding="utf-8"
-            )
+            await storage.set("christmas.json", json.dumps(json_content), encoding="utf-8")
             items = list(storage.find(file_pattern=re.compile(r".*\.json$")))
             items = [item[0] for item in items]
             assert items == ["christmas.json"]

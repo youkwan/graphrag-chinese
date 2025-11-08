@@ -32,9 +32,7 @@ async def test_extract_covariates():
     )
 
     config = create_graphrag_config({"models": DEFAULT_MODEL_CONFIG})
-    llm_settings = config.get_language_model_config(
-        config.extract_claims.model_id
-    ).model_dump()
+    llm_settings = config.get_language_model_config(config.extract_claims.model_id).model_dump()
     llm_settings["type"] = ModelType.MockChat
     llm_settings["responses"] = MOCK_LLM_RESPONSES
     config.extract_claims.enabled = True

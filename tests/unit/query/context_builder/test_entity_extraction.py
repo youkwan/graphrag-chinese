@@ -20,35 +20,26 @@ from graphrag.vector_stores.base import (
 
 class MockBaseVectorStore(BaseVectorStore):
     def __init__(self, documents: list[VectorStoreDocument]) -> None:
-        super().__init__(
-            vector_store_schema_config=VectorStoreSchemaConfig(index_name="mock")
-        )
+        super().__init__(vector_store_schema_config=VectorStoreSchemaConfig(index_name="mock"))
         self.documents = documents
 
     def connect(self, **kwargs: Any) -> None:
         raise NotImplementedError
 
-    def load_documents(
-        self, documents: list[VectorStoreDocument], overwrite: bool = True
-    ) -> None:
+    def load_documents(self, documents: list[VectorStoreDocument], overwrite: bool = True) -> None:
         raise NotImplementedError
 
     def similarity_search_by_vector(
         self, query_embedding: list[float], k: int = 10, **kwargs: Any
     ) -> list[VectorStoreSearchResult]:
-        return [
-            VectorStoreSearchResult(document=document, score=1)
-            for document in self.documents[:k]
-        ]
+        return [VectorStoreSearchResult(document=document, score=1) for document in self.documents[:k]]
 
     def similarity_search_by_text(
         self, text: str, text_embedder: TextEmbedder, k: int = 10, **kwargs: Any
     ) -> list[VectorStoreSearchResult]:
         return sorted(
             [
-                VectorStoreSearchResult(
-                    document=document, score=abs(len(text) - len(document.text or ""))
-                )
+                VectorStoreSearchResult(document=document, score=abs(len(text) - len(document.text or "")))
                 for document in self.documents
             ],
             key=lambda x: x.score,
@@ -94,12 +85,9 @@ def test_map_query_to_entities():
     assert map_query_to_entities(
         query="t22",
         text_embedding_vectorstore=MockBaseVectorStore([
-            VectorStoreDocument(id=entity.id, text=entity.title, vector=None)
-            for entity in entities
+            VectorStoreDocument(id=entity.id, text=entity.title, vector=None) for entity in entities
         ]),
-        text_embedder=ModelManager().get_or_create_embedding_model(
-            model_type="mock_embedding", name="mock"
-        ),
+        text_embedder=ModelManager().get_or_create_embedding_model(model_type="mock_embedding", name="mock"),
         all_entities_dict={entity.id: entity for entity in entities},
         embedding_vectorstore_key=EntityVectorStoreKey.ID,
         k=1,
@@ -116,12 +104,9 @@ def test_map_query_to_entities():
     assert map_query_to_entities(
         query="t22",
         text_embedding_vectorstore=MockBaseVectorStore([
-            VectorStoreDocument(id=entity.title, text=entity.title, vector=None)
-            for entity in entities
+            VectorStoreDocument(id=entity.title, text=entity.title, vector=None) for entity in entities
         ]),
-        text_embedder=ModelManager().get_or_create_embedding_model(
-            model_type="mock_embedding", name="mock"
-        ),
+        text_embedder=ModelManager().get_or_create_embedding_model(model_type="mock_embedding", name="mock"),
         all_entities_dict={entity.id: entity for entity in entities},
         embedding_vectorstore_key=EntityVectorStoreKey.TITLE,
         k=1,
@@ -138,12 +123,9 @@ def test_map_query_to_entities():
     assert map_query_to_entities(
         query="",
         text_embedding_vectorstore=MockBaseVectorStore([
-            VectorStoreDocument(id=entity.id, text=entity.title, vector=None)
-            for entity in entities
+            VectorStoreDocument(id=entity.id, text=entity.title, vector=None) for entity in entities
         ]),
-        text_embedder=ModelManager().get_or_create_embedding_model(
-            model_type="mock_embedding", name="mock"
-        ),
+        text_embedder=ModelManager().get_or_create_embedding_model(model_type="mock_embedding", name="mock"),
         all_entities_dict={entity.id: entity for entity in entities},
         embedding_vectorstore_key=EntityVectorStoreKey.ID,
         k=2,
@@ -165,12 +147,9 @@ def test_map_query_to_entities():
     assert map_query_to_entities(
         query="",
         text_embedding_vectorstore=MockBaseVectorStore([
-            VectorStoreDocument(id=entity.id, text=entity.title, vector=None)
-            for entity in entities
+            VectorStoreDocument(id=entity.id, text=entity.title, vector=None) for entity in entities
         ]),
-        text_embedder=ModelManager().get_or_create_embedding_model(
-            model_type="mock_embedding", name="mock"
-        ),
+        text_embedder=ModelManager().get_or_create_embedding_model(model_type="mock_embedding", name="mock"),
         all_entities_dict={entity.id: entity for entity in entities},
         embedding_vectorstore_key=EntityVectorStoreKey.TITLE,
         k=2,

@@ -70,10 +70,7 @@ class StaticRateLimiter(RateLimiter):
 
                 # Use two sliding windows to keep track of #requests and tokens per period
                 # Drop old requests and tokens out of the sliding windows
-                while (
-                    len(self.rate_queue) > 0
-                    and self.rate_queue[0] < current_time - self.period_in_seconds
-                ):
+                while len(self.rate_queue) > 0 and self.rate_queue[0] < current_time - self.period_in_seconds:
                     self.rate_queue.popleft()
                     self.token_queue.popleft()
 
@@ -81,11 +78,7 @@ class StaticRateLimiter(RateLimiter):
                 # Waiting requires reacquiring the lock, allowing other threads
                 # to see if their request fits within the rate limiting windows
                 # Makes more sense for token limit than request limit
-                if (
-                    self.rpm is not None
-                    and self.rpm > 0
-                    and len(self.rate_queue) >= self.rpm
-                ):
+                if self.rpm is not None and self.rpm > 0 and len(self.rate_queue) >= self.rpm:
                     continue
 
                 # Check if current token window exceeds token limit
@@ -94,11 +87,7 @@ class StaticRateLimiter(RateLimiter):
                 # This is intentional, as we want to allow the current request
                 # to be processed if it is larger than the tpm but smaller than context window.
                 # tpm is a rate/soft limit and not the hard limit of context window limits.
-                if (
-                    self.tpm is not None
-                    and self.tpm > 0
-                    and sum(self.token_queue) >= self.tpm
-                ):
+                if self.tpm is not None and self.tpm > 0 and sum(self.token_queue) >= self.tpm:
                     continue
 
                 # This check accounts for the current request token usage
@@ -114,13 +103,10 @@ class StaticRateLimiter(RateLimiter):
                     continue
 
                 # If there was a previous call, check if we need to stagger
-                if (
-                    self.stagger > 0
-                    and (
-                        self._last_time  # is None if this is the first hit to the rate limiter
-                        and current_time - self._last_time
-                        < self.stagger  # If more time has passed than the stagger time, we can proceed
-                    )
+                if self.stagger > 0 and (
+                    self._last_time  # is None if this is the first hit to the rate limiter
+                    and current_time - self._last_time
+                    < self.stagger  # If more time has passed than the stagger time, we can proceed
                 ):
                     time.sleep(self.stagger - (current_time - self._last_time))
                     current_time = time.time()

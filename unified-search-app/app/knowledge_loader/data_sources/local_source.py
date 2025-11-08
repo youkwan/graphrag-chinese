@@ -54,11 +54,7 @@ class LocalDatasource(Datasource):
                 raise FileNotFoundError(error_msg)
 
             print(f"Table {table} does not exist")  # noqa T201
-            return (
-                pd.DataFrame(data=[], columns=columns)
-                if columns is not None
-                else pd.DataFrame()
-            )
+            return pd.DataFrame(data=[], columns=columns) if columns is not None else pd.DataFrame()
         return pd.read_parquet(table, columns=columns)
 
     def read_settings(

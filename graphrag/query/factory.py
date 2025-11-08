@@ -57,9 +57,7 @@ def get_local_search_engine(
         config=model_settings,
     )
 
-    embedding_settings = config.get_language_model_config(
-        config.local_search.embedding_model_id
-    )
+    embedding_settings = config.get_language_model_config(config.local_search.embedding_model_id)
 
     embedding_model = ModelManager().get_or_create_embedding_model(
         name="local_search_embedding",
@@ -121,9 +119,7 @@ def get_global_search_engine(
     callbacks: list[QueryCallbacks] | None = None,
 ) -> GlobalSearch:
     """Create a global search engine based on data + configuration."""
-    model_settings = config.get_language_model_config(
-        config.global_search.chat_model_id
-    )
+    model_settings = config.get_language_model_config(config.global_search.chat_model_id)
 
     model = ModelManager().get_or_create_chat_model(
         name="global_search",
@@ -205,9 +201,7 @@ def get_drift_search_engine(
     callbacks: list[QueryCallbacks] | None = None,
 ) -> DRIFTSearch:
     """Create a local search engine based on data + configuration."""
-    chat_model_settings = config.get_language_model_config(
-        config.drift_search.chat_model_id
-    )
+    chat_model_settings = config.get_language_model_config(config.drift_search.chat_model_id)
 
     chat_model = ModelManager().get_or_create_chat_model(
         name="drift_search_chat",
@@ -215,9 +209,7 @@ def get_drift_search_engine(
         config=chat_model_settings,
     )
 
-    embedding_model_settings = config.get_language_model_config(
-        config.drift_search.embedding_model_id
-    )
+    embedding_model_settings = config.get_language_model_config(config.drift_search.embedding_model_id)
 
     embedding_model = ModelManager().get_or_create_embedding_model(
         name="drift_search_embedding",
@@ -256,9 +248,7 @@ def get_basic_search_engine(
     callbacks: list[QueryCallbacks] | None = None,
 ) -> BasicSearch:
     """Create a basic search engine based on data + configuration."""
-    chat_model_settings = config.get_language_model_config(
-        config.basic_search.chat_model_id
-    )
+    chat_model_settings = config.get_language_model_config(config.basic_search.chat_model_id)
 
     chat_model = ModelManager().get_or_create_chat_model(
         name="basic_search_chat",
@@ -266,9 +256,7 @@ def get_basic_search_engine(
         config=chat_model_settings,
     )
 
-    embedding_model_settings = config.get_language_model_config(
-        config.basic_search.embedding_model_id
-    )
+    embedding_model_settings = config.get_language_model_config(config.basic_search.embedding_model_id)
 
     embedding_model = ModelManager().get_or_create_embedding_model(
         name="basic_search_embedding",

@@ -122,9 +122,7 @@ def test_register_class_directly_works():
         ) -> Iterator[tuple[str, dict[str, Any]]]:
             return iter([])
 
-        async def get(
-            self, key: str, as_bytes: bool | None = None, encoding: str | None = None
-        ) -> Any:
+        async def get(self, key: str, as_bytes: bool | None = None, encoding: str | None = None) -> Any:
             return None
 
         async def set(self, key: str, value: Any, encoding: str | None = None) -> None:

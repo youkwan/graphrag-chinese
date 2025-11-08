@@ -27,9 +27,7 @@ async def run_workflow(
     """All the steps to create the base entity graph."""
     logger.info("Workflow started: finalize_graph")
     entities = await load_table_from_storage("entities", context.output_storage)
-    relationships = await load_table_from_storage(
-        "relationships", context.output_storage
-    )
+    relationships = await load_table_from_storage("relationships", context.output_storage)
 
     final_entities, final_relationships = finalize_graph(
         entities,
@@ -39,9 +37,7 @@ async def run_workflow(
     )
 
     await write_table_to_storage(final_entities, "entities", context.output_storage)
-    await write_table_to_storage(
-        final_relationships, "relationships", context.output_storage
-    )
+    await write_table_to_storage(final_relationships, "relationships", context.output_storage)
 
     if config.snapshots.graphml:
         # todo: extract graphs at each level, and add in meta like descriptions
@@ -69,8 +65,6 @@ def finalize_graph(
     layout_enabled: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """All the steps to finalize the entity and relationship formats."""
-    final_entities = finalize_entities(
-        entities, relationships, embed_config, layout_enabled
-    )
+    final_entities = finalize_entities(entities, relationships, embed_config, layout_enabled)
     final_relationships = finalize_relationships(relationships)
     return (final_entities, final_relationships)

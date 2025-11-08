@@ -38,11 +38,7 @@ def initialize() -> SessionVariables:
         sv = SessionVariables()
         datasets = load_dataset_listing()
         sv.datasets.value = datasets
-        sv.dataset.value = (
-            st.query_params["dataset"].lower()
-            if "dataset" in st.query_params
-            else datasets[0].key
-        )
+        sv.dataset.value = st.query_params["dataset"].lower() if "dataset" in st.query_params else datasets[0].key
         load_dataset(sv.dataset.value, sv)
         st.session_state["session_variables"] = sv
     return st.session_state["session_variables"]
@@ -51,9 +47,7 @@ def initialize() -> SessionVariables:
 def load_dataset(dataset: str, sv: SessionVariables):
     """Load dataset from the dropdown."""
     sv.dataset.value = dataset
-    sv.dataset_config.value = next(
-        (d for d in sv.datasets.value if d.key == dataset), None
-    )
+    sv.dataset_config.value = next((d for d in sv.datasets.value if d.key == dataset), None)
     if sv.dataset_config.value is not None:
         sv.datasource.value = create_datasource(f"{sv.dataset_config.value.path}")  # type: ignore
         sv.graphrag_config.value = sv.datasource.value.read_settings("settings.yaml")
@@ -153,9 +147,7 @@ async def run_local_search(
     print(f"Local search query: {query}")  # noqa T201
 
     # build local search engine
-    response_placeholder = st.session_state[
-        f"{SearchType.Local.value.lower()}_response_placeholder"
-    ]
+    response_placeholder = st.session_state[f"{SearchType.Local.value.lower()}_response_placeholder"]
     response_container = st.session_state[f"{SearchType.Local.value.lower()}_container"]
 
     with response_placeholder, st.spinner("Generating answer using local search..."):
@@ -184,9 +176,7 @@ async def run_local_search(
         context=context_data if isinstance(context_data, dict) else empty_context_data,
     )
 
-    display_search_result(
-        container=response_container, result=search_result, stats=None
-    )
+    display_search_result(container=response_container, result=search_result, stats=None)
 
     if "response_lengths" not in st.session_state:
         st.session_state.response_lengths = []
@@ -204,12 +194,8 @@ async def run_global_search(query: str, sv: SessionVariables) -> SearchResult:
     print(f"Global search query: {query}")  # noqa T201
 
     # build global search engine
-    response_placeholder = st.session_state[
-        f"{SearchType.Global.value.lower()}_response_placeholder"
-    ]
-    response_container = st.session_state[
-        f"{SearchType.Global.value.lower()}_container"
-    ]
+    response_placeholder = st.session_state[f"{SearchType.Global.value.lower()}_response_placeholder"]
+    response_container = st.session_state[f"{SearchType.Global.value.lower()}_container"]
 
     response_placeholder.empty()
     with response_placeholder, st.spinner("Generating answer using global search..."):
@@ -236,9 +222,7 @@ async def run_global_search(query: str, sv: SessionVariables) -> SearchResult:
         context=context_data if isinstance(context_data, dict) else empty_context_data,
     )
 
-    display_search_result(
-        container=response_container, result=search_result, stats=None
-    )
+    display_search_result(container=response_container, result=search_result, stats=None)
 
     if "response_lengths" not in st.session_state:
         st.session_state.response_lengths = []
@@ -259,9 +243,7 @@ async def run_drift_search(
     print(f"Drift search query: {query}")  # noqa T201
 
     # build drift search engine
-    response_placeholder = st.session_state[
-        f"{SearchType.Drift.value.lower()}_response_placeholder"
-    ]
+    response_placeholder = st.session_state[f"{SearchType.Drift.value.lower()}_response_placeholder"]
     response_container = st.session_state[f"{SearchType.Drift.value.lower()}_container"]
 
     with response_placeholder, st.spinner("Generating answer using drift search..."):
@@ -289,9 +271,7 @@ async def run_drift_search(
         context=context_data if isinstance(context_data, dict) else empty_context_data,
     )
 
-    display_search_result(
-        container=response_container, result=search_result, stats=None
-    )
+    display_search_result(container=response_container, result=search_result, stats=None)
 
     if "response_lengths" not in st.session_state:
         st.session_state.response_lengths = []
@@ -312,9 +292,7 @@ async def run_basic_search(
     print(f"Basic search query: {query}")  # noqa T201
 
     # build local search engine
-    response_placeholder = st.session_state[
-        f"{SearchType.Basic.value.lower()}_response_placeholder"
-    ]
+    response_placeholder = st.session_state[f"{SearchType.Basic.value.lower()}_response_placeholder"]
     response_container = st.session_state[f"{SearchType.Basic.value.lower()}_container"]
 
     with response_placeholder, st.spinner("Generating answer using basic RAG..."):
@@ -336,9 +314,7 @@ async def run_basic_search(
         context=context_data if isinstance(context_data, dict) else empty_context_data,
     )
 
-    display_search_result(
-        container=response_container, result=search_result, stats=None
-    )
+    display_search_result(container=response_container, result=search_result, stats=None)
 
     if "response_lengths" not in st.session_state:
         st.session_state.response_lengths = []

@@ -25,28 +25,18 @@ async def test_create_custom_chat_model():
         def __init__(self, **kwargs):
             pass
 
-        async def achat(
-            self, prompt: str, history: list | None = None, **kwargs: Any
-        ) -> ModelResponse:
+        async def achat(self, prompt: str, history: list | None = None, **kwargs: Any) -> ModelResponse:
             return BaseModelResponse(output=BaseModelOutput(content="content"))
 
-        def chat(
-            self, prompt: str, history: list | None = None, **kwargs: Any
-        ) -> ModelResponse:
-            return BaseModelResponse(
-                output=BaseModelOutput(
-                    content="content", full_response={"key": "value"}
-                )
-            )
+        def chat(self, prompt: str, history: list | None = None, **kwargs: Any) -> ModelResponse:
+            return BaseModelResponse(output=BaseModelOutput(content="content", full_response={"key": "value"}))
 
         async def achat_stream(
             self, prompt: str, history: list | None = None, **kwargs: Any
         ) -> AsyncGenerator[str, None]:
             yield ""
 
-        def chat_stream(
-            self, prompt: str, history: list | None = None, **kwargs: Any
-        ) -> Generator[str, None]: ...
+        def chat_stream(self, prompt: str, history: list | None = None, **kwargs: Any) -> Generator[str, None]: ...
 
     ModelFactory.register_chat("custom_chat", CustomChatModel)
     model = ModelManager().get_or_create_chat_model("custom", "custom_chat")
@@ -73,9 +63,7 @@ async def test_create_custom_embedding_llm():
         def embed(self, text: str, **kwargs) -> list[float]:
             return [1.0]
 
-        async def aembed_batch(
-            self, text_list: list[str], **kwargs
-        ) -> list[list[float]]:
+        async def aembed_batch(self, text_list: list[str], **kwargs) -> list[list[float]]:
             return [[1.0]]
 
         def embed_batch(self, text_list: list[str], **kwargs) -> list[list[float]]:

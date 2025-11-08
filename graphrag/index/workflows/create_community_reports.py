@@ -49,19 +49,13 @@ async def run_workflow(
     entities = await load_table_from_storage("entities", context.output_storage)
     communities = await load_table_from_storage("communities", context.output_storage)
     claims = None
-    if config.extract_claims.enabled and await storage_has_table(
-        "covariates", context.output_storage
-    ):
+    if config.extract_claims.enabled and await storage_has_table("covariates", context.output_storage):
         claims = await load_table_from_storage("covariates", context.output_storage)
 
-    community_reports_llm_settings = config.get_language_model_config(
-        config.community_reports.model_id
-    )
+    community_reports_llm_settings = config.get_language_model_config(config.community_reports.model_id)
     async_mode = community_reports_llm_settings.async_mode
     num_threads = community_reports_llm_settings.concurrent_requests
-    summarization_strategy = config.community_reports.resolved_strategy(
-        config.root_dir, community_reports_llm_settings
-    )
+    summarization_strategy = config.community_reports.resolved_strategy(config.root_dir, community_reports_llm_settings)
 
     output = await create_community_reports(
         edges_input=edges,
@@ -140,9 +134,7 @@ async def create_community_reports(
 def _prep_nodes(input: pd.DataFrame) -> pd.DataFrame:
     """Prepare nodes by filtering, filling missing descriptions, and creating NODE_DETAILS."""
     # Fill missing values in DESCRIPTION
-    input.loc[:, schemas.DESCRIPTION] = input.loc[:, schemas.DESCRIPTION].fillna(
-        "No Description"
-    )
+    input.loc[:, schemas.DESCRIPTION] = input.loc[:, schemas.DESCRIPTION].fillna("No Description")
 
     # Create NODE_DETAILS column
     input.loc[:, schemas.NODE_DETAILS] = input.loc[

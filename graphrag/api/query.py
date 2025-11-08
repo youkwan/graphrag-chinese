@@ -165,16 +165,10 @@ def global_search_streaming(
         community_level=community_level,
         dynamic_community_selection=dynamic_community_selection,
     )
-    entities_ = read_indexer_entities(
-        entities, communities, community_level=community_level
-    )
+    entities_ = read_indexer_entities(entities, communities, community_level=community_level)
     map_prompt = load_search_prompt(config.root_dir, config.global_search.map_prompt)
-    reduce_prompt = load_search_prompt(
-        config.root_dir, config.global_search.reduce_prompt
-    )
-    knowledge_prompt = load_search_prompt(
-        config.root_dir, config.global_search.knowledge_prompt
-    )
+    reduce_prompt = load_search_prompt(config.root_dir, config.global_search.reduce_prompt)
+    knowledge_prompt = load_search_prompt(config.root_dir, config.global_search.knowledge_prompt)
 
     logger.debug("Executing streaming global search query: %s", query)
     search_engine = get_global_search_engine(
@@ -231,9 +225,7 @@ async def multi_index_global_search(
     """
     init_loggers(config=config, verbose=verbose, filename="query.log")
 
-    logger.warning(
-        "Multi-index search is deprecated and will be removed in GraphRAG v3."
-    )
+    logger.warning("Multi-index search is deprecated and will be removed in GraphRAG v3.")
 
     # Streaming not supported yet
     if streaming:
@@ -258,9 +250,7 @@ async def multi_index_global_search(
     for idx, index_name in enumerate(index_names):
         # Prepare each index's community reports dataframe for merging
         community_reports_df = community_reports_list[idx]
-        community_reports_df["community"] = community_reports_df["community"].astype(
-            int
-        )
+        community_reports_df["community"] = community_reports_df["community"].astype(int)
         for i in community_reports_df["community"]:
             links["community_reports"][i + max_vals["community_reports"] + 1] = {
                 "index_name": index_name,
@@ -300,9 +290,7 @@ async def multi_index_global_search(
                 "id": i,
             }
         entities_df["human_readable_id"] += max_vals["entities"] + 1
-        entities_df["title"] = entities_df["title"].apply(
-            lambda x, index_name=index_name: x + f"-{index_name}"
-        )
+        entities_df["title"] = entities_df["title"].apply(lambda x, index_name=index_name: x + f"-{index_name}")
         entities_df["text_unit_ids"] = entities_df["text_unit_ids"].apply(
             lambda x, index_name=index_name: [i + f"-{index_name}" for i in x]
         )
@@ -310,13 +298,9 @@ async def multi_index_global_search(
         entities_dfs.append(entities_df)
 
     # Merge the dataframes
-    community_reports_combined = pd.concat(
-        community_reports_dfs, axis=0, ignore_index=True, sort=False
-    )
+    community_reports_combined = pd.concat(community_reports_dfs, axis=0, ignore_index=True, sort=False)
     entities_combined = pd.concat(entities_dfs, axis=0, ignore_index=True, sort=False)
-    communities_combined = pd.concat(
-        communities_dfs, axis=0, ignore_index=True, sort=False
-    )
+    communities_combined = pd.concat(communities_dfs, axis=0, ignore_index=True, sort=False)
 
     logger.debug("Executing multi-index global search query: %s", query)
     result = await global_search(
@@ -514,9 +498,7 @@ async def multi_index_local_search(
     """
     init_loggers(config=config, verbose=verbose, filename="query.log")
 
-    logger.warning(
-        "Multi-index search is deprecated and will be removed in GraphRAG v3."
-    )
+    logger.warning("Multi-index search is deprecated and will be removed in GraphRAG v3.")
     # Streaming not supported yet
     if streaming:
         message = "Streaming not yet implemented for multi_index_local_search"
@@ -565,9 +547,7 @@ async def multi_index_local_search(
 
         # Prepare each index's community reports dataframe for merging
         community_reports_df = community_reports_list[idx]
-        community_reports_df["community"] = community_reports_df["community"].astype(
-            int
-        )
+        community_reports_df["community"] = community_reports_df["community"].astype(int)
         for i in community_reports_df["community"]:
             links["community_reports"][i + max_vals["community_reports"] + 1] = {
                 "index_name": index_name,
@@ -586,12 +566,8 @@ async def multi_index_local_search(
                 "id": i,
             }
         entities_df["human_readable_id"] += max_vals["entities"] + 1
-        entities_df["title"] = entities_df["title"].apply(
-            lambda x, index_name=index_name: x + f"-{index_name}"
-        )
-        entities_df["id"] = entities_df["id"].apply(
-            lambda x, index_name=index_name: x + f"-{index_name}"
-        )
+        entities_df["title"] = entities_df["title"].apply(lambda x, index_name=index_name: x + f"-{index_name}")
+        entities_df["id"] = entities_df["id"].apply(lambda x, index_name=index_name: x + f"-{index_name}")
         entities_df["text_unit_ids"] = entities_df["text_unit_ids"].apply(
             lambda x, index_name=index_name: [i + f"-{index_name}" for i in x]
         )
@@ -606,11 +582,7 @@ async def multi_index_local_search(
                 "id": i,
             }
         if max_vals["relationships"] != -1:
-            col = (
-                relationships_df["human_readable_id"].astype(int)
-                + max_vals["relationships"]
-                + 1
-            )
+            col = relationships_df["human_readable_id"].astype(int) + max_vals["relationships"] + 1
             relationships_df["human_readable_id"] = col.astype(str)
         relationships_df["source"] = relationships_df["source"].apply(
             lambda x, index_name=index_name: x + f"-{index_name}"
@@ -631,12 +603,8 @@ async def multi_index_local_search(
                 "index_name": index_name,
                 "id": i,
             }
-        text_units_df["id"] = text_units_df["id"].apply(
-            lambda x, index_name=index_name: f"{x}-{index_name}"
-        )
-        text_units_df["human_readable_id"] = (
-            text_units_df["human_readable_id"] + max_vals["text_units"]
-        )
+        text_units_df["id"] = text_units_df["id"].apply(lambda x, index_name=index_name: f"{x}-{index_name}")
+        text_units_df["human_readable_id"] = text_units_df["human_readable_id"] + max_vals["text_units"]
         max_vals["text_units"] += text_units_df.shape[0]
         text_units_dfs.append(text_units_df)
 
@@ -648,12 +616,8 @@ async def multi_index_local_search(
                     "index_name": index_name,
                     "id": i,
                 }
-            covariates_df["id"] = covariates_df["id"].apply(
-                lambda x, index_name=index_name: f"{x}-{index_name}"
-            )
-            covariates_df["human_readable_id"] = (
-                covariates_df["human_readable_id"] + max_vals["covariates"]
-            )
+            covariates_df["id"] = covariates_df["id"].apply(lambda x, index_name=index_name: f"{x}-{index_name}")
+            covariates_df["human_readable_id"] = covariates_df["human_readable_id"] + max_vals["covariates"]
             covariates_df["text_unit_id"] = covariates_df["text_unit_id"].apply(
                 lambda x, index_name=index_name: x + f"-{index_name}"
             )
@@ -664,24 +628,14 @@ async def multi_index_local_search(
             covariates_dfs.append(covariates_df)
 
     # Merge the dataframes
-    communities_combined = pd.concat(
-        communities_dfs, axis=0, ignore_index=True, sort=False
-    )
-    community_reports_combined = pd.concat(
-        community_reports_dfs, axis=0, ignore_index=True, sort=False
-    )
+    communities_combined = pd.concat(communities_dfs, axis=0, ignore_index=True, sort=False)
+    community_reports_combined = pd.concat(community_reports_dfs, axis=0, ignore_index=True, sort=False)
     entities_combined = pd.concat(entities_dfs, axis=0, ignore_index=True, sort=False)
-    relationships_combined = pd.concat(
-        relationships_dfs, axis=0, ignore_index=True, sort=False
-    )
-    text_units_combined = pd.concat(
-        text_units_dfs, axis=0, ignore_index=True, sort=False
-    )
+    relationships_combined = pd.concat(relationships_dfs, axis=0, ignore_index=True, sort=False)
+    text_units_combined = pd.concat(text_units_dfs, axis=0, ignore_index=True, sort=False)
     covariates_combined = None
     if len(covariates_dfs) > 0:
-        covariates_combined = pd.concat(
-            covariates_dfs, axis=0, ignore_index=True, sort=False
-        )
+        covariates_combined = pd.concat(covariates_dfs, axis=0, ignore_index=True, sort=False)
     logger.debug("Executing multi-index local search query: %s", query)
     result = await local_search(
         config,
@@ -821,9 +775,7 @@ def drift_search_streaming(
     reports = read_indexer_reports(community_reports, communities, community_level)
     read_indexer_report_embeddings(reports, full_content_embedding_store)
     prompt = load_search_prompt(config.root_dir, config.drift_search.prompt)
-    reduce_prompt = load_search_prompt(
-        config.root_dir, config.drift_search.reduce_prompt
-    )
+    reduce_prompt = load_search_prompt(config.root_dir, config.drift_search.reduce_prompt)
 
     logger.debug("Executing streaming drift search query: %s", query)
     search_engine = get_drift_search_engine(
@@ -881,9 +833,7 @@ async def multi_index_drift_search(
     """
     init_loggers(config=config, verbose=verbose, filename="query.log")
 
-    logger.warning(
-        "Multi-index search is deprecated and will be removed in GraphRAG v3."
-    )
+    logger.warning("Multi-index search is deprecated and will be removed in GraphRAG v3.")
 
     # Streaming not supported yet
     if streaming:
@@ -931,9 +881,7 @@ async def multi_index_drift_search(
 
         # Prepare each index's community reports dataframe for merging
         community_reports_df = community_reports_list[idx]
-        community_reports_df["community"] = community_reports_df["community"].astype(
-            int
-        )
+        community_reports_df["community"] = community_reports_df["community"].astype(int)
         for i in community_reports_df["community"]:
             links["community_reports"][i + max_vals["community_reports"] + 1] = {
                 "index_name": index_name,
@@ -955,12 +903,8 @@ async def multi_index_drift_search(
                 "id": i,
             }
         entities_df["human_readable_id"] += max_vals["entities"] + 1
-        entities_df["title"] = entities_df["title"].apply(
-            lambda x, index_name=index_name: x + f"-{index_name}"
-        )
-        entities_df["id"] = entities_df["id"].apply(
-            lambda x, index_name=index_name: x + f"-{index_name}"
-        )
+        entities_df["title"] = entities_df["title"].apply(lambda x, index_name=index_name: x + f"-{index_name}")
+        entities_df["id"] = entities_df["id"].apply(lambda x, index_name=index_name: x + f"-{index_name}")
         entities_df["text_unit_ids"] = entities_df["text_unit_ids"].apply(
             lambda x, index_name=index_name: [i + f"-{index_name}" for i in x]
         )
@@ -975,11 +919,7 @@ async def multi_index_drift_search(
                 "id": i,
             }
         if max_vals["relationships"] != -1:
-            col = (
-                relationships_df["human_readable_id"].astype(int)
-                + max_vals["relationships"]
-                + 1
-            )
+            col = relationships_df["human_readable_id"].astype(int) + max_vals["relationships"] + 1
             relationships_df["human_readable_id"] = col.astype(str)
         relationships_df["source"] = relationships_df["source"].apply(
             lambda x, index_name=index_name: x + f"-{index_name}"
@@ -990,9 +930,7 @@ async def multi_index_drift_search(
         relationships_df["text_unit_ids"] = relationships_df["text_unit_ids"].apply(
             lambda x, index_name=index_name: [i + f"-{index_name}" for i in x]
         )
-        max_vals["relationships"] = int(
-            relationships_df["human_readable_id"].astype(int).max()
-        )
+        max_vals["relationships"] = int(relationships_df["human_readable_id"].astype(int).max())
 
         relationships_dfs.append(relationships_df)
 
@@ -1003,29 +941,17 @@ async def multi_index_drift_search(
                 "index_name": index_name,
                 "id": i,
             }
-        text_units_df["id"] = text_units_df["id"].apply(
-            lambda x, index_name=index_name: f"{x}-{index_name}"
-        )
-        text_units_df["human_readable_id"] = (
-            text_units_df["human_readable_id"] + max_vals["text_units"]
-        )
+        text_units_df["id"] = text_units_df["id"].apply(lambda x, index_name=index_name: f"{x}-{index_name}")
+        text_units_df["human_readable_id"] = text_units_df["human_readable_id"] + max_vals["text_units"]
         max_vals["text_units"] += text_units_df.shape[0]
         text_units_dfs.append(text_units_df)
 
     # Merge the dataframes
-    communities_combined = pd.concat(
-        communities_dfs, axis=0, ignore_index=True, sort=False
-    )
-    community_reports_combined = pd.concat(
-        community_reports_dfs, axis=0, ignore_index=True, sort=False
-    )
+    communities_combined = pd.concat(communities_dfs, axis=0, ignore_index=True, sort=False)
+    community_reports_combined = pd.concat(community_reports_dfs, axis=0, ignore_index=True, sort=False)
     entities_combined = pd.concat(entities_dfs, axis=0, ignore_index=True, sort=False)
-    relationships_combined = pd.concat(
-        relationships_dfs, axis=0, ignore_index=True, sort=False
-    )
-    text_units_combined = pd.concat(
-        text_units_dfs, axis=0, ignore_index=True, sort=False
-    )
+    relationships_combined = pd.concat(relationships_dfs, axis=0, ignore_index=True, sort=False)
+    text_units_combined = pd.concat(text_units_dfs, axis=0, ignore_index=True, sort=False)
 
     logger.debug("Executing multi-index drift search query: %s", query)
     result = await drift_search(
@@ -1177,9 +1103,7 @@ async def multi_index_basic_search(
     """
     init_loggers(config=config, verbose=verbose, filename="query.log")
 
-    logger.warning(
-        "Multi-index search is deprecated and will be removed in GraphRAG v3."
-    )
+    logger.warning("Multi-index search is deprecated and will be removed in GraphRAG v3.")
 
     # Streaming not supported yet
     if streaming:
@@ -1203,19 +1127,13 @@ async def multi_index_basic_search(
                 "index_name": index_name,
                 "id": i,
             }
-        text_units_df["id"] = text_units_df["id"].apply(
-            lambda x, index_name=index_name: f"{x}-{index_name}"
-        )
-        text_units_df["human_readable_id"] = (
-            text_units_df["human_readable_id"] + max_vals["text_units"]
-        )
+        text_units_df["id"] = text_units_df["id"].apply(lambda x, index_name=index_name: f"{x}-{index_name}")
+        text_units_df["human_readable_id"] = text_units_df["human_readable_id"] + max_vals["text_units"]
         max_vals["text_units"] += text_units_df.shape[0]
         text_units_dfs.append(text_units_df)
 
     # Merge the dataframes
-    text_units_combined = pd.concat(
-        text_units_dfs, axis=0, ignore_index=True, sort=False
-    )
+    text_units_combined = pd.concat(text_units_dfs, axis=0, ignore_index=True, sort=False)
 
     logger.debug("Executing multi-index basic search query: %s", query)
     return await basic_search(

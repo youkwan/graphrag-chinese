@@ -191,9 +191,7 @@ class ExtractClaimsDefaults:
 
     enabled: bool = False
     prompt: None = None
-    description: str = (
-        "Any claims or facts that could be relevant to information discovery."
-    )
+    description: str = "Any claims or facts that could be relevant to information discovery."
     max_gleanings: int = 1
     strategy: None = None
     model_id: str = DEFAULT_CHAT_MODEL_ID
@@ -204,9 +202,7 @@ class ExtractGraphDefaults:
     """Default values for extracting graph."""
 
     prompt: None = None
-    entity_types: list[str] = field(
-        default_factory=lambda: ["organization", "person", "geo", "event"]
-    )
+    entity_types: list[str] = field(default_factory=lambda: ["organization", "person", "geo", "event"])
     max_gleanings: int = 1
     strategy: None = None
     model_id: str = DEFAULT_CHAT_MODEL_ID
@@ -216,18 +212,14 @@ class ExtractGraphDefaults:
 class TextAnalyzerDefaults:
     """Default values for text analyzer."""
 
-    extractor_type: ClassVar[NounPhraseExtractorType] = (
-        NounPhraseExtractorType.RegexEnglish
-    )
+    extractor_type: ClassVar[NounPhraseExtractorType] = NounPhraseExtractorType.RegexEnglish
     model_name: str = "en_core_web_md"
     max_word_length: int = 15
     word_delimiter: str = " "
     include_named_entities: bool = True
     exclude_nouns: list[str] = field(default_factory=lambda: EN_STOP_WORDS)
     exclude_entity_tags: list[str] = field(default_factory=lambda: ["DATE"])
-    exclude_pos_tags: list[str] = field(
-        default_factory=lambda: ["DET", "PRON", "INTJ", "X"]
-    )
+    exclude_pos_tags: list[str] = field(default_factory=lambda: ["DET", "PRON", "INTJ", "X"])
     noun_phrase_tags: list[str] = field(default_factory=lambda: ["PROPN", "NOUNS"])
     noun_phrase_grammars: dict[str, str] = field(
         default_factory=lambda: {
@@ -442,9 +434,7 @@ class GraphRagConfigDefaults:
     storage: StorageDefaults = field(default_factory=StorageDefaults)
     output: OutputDefaults = field(default_factory=OutputDefaults)
     outputs: None = None
-    update_index_output: UpdateIndexOutputDefaults = field(
-        default_factory=UpdateIndexOutputDefaults
-    )
+    update_index_output: UpdateIndexOutputDefaults = field(default_factory=UpdateIndexOutputDefaults)
     cache: CacheDefaults = field(default_factory=CacheDefaults)
     input: InputDefaults = field(default_factory=InputDefaults)
     embed_graph: EmbedGraphDefaults = field(default_factory=EmbedGraphDefaults)
@@ -452,15 +442,9 @@ class GraphRagConfigDefaults:
     chunks: ChunksDefaults = field(default_factory=ChunksDefaults)
     snapshots: SnapshotsDefaults = field(default_factory=SnapshotsDefaults)
     extract_graph: ExtractGraphDefaults = field(default_factory=ExtractGraphDefaults)
-    extract_graph_nlp: ExtractGraphNLPDefaults = field(
-        default_factory=ExtractGraphNLPDefaults
-    )
-    summarize_descriptions: SummarizeDescriptionsDefaults = field(
-        default_factory=SummarizeDescriptionsDefaults
-    )
-    community_reports: CommunityReportDefaults = field(
-        default_factory=CommunityReportDefaults
-    )
+    extract_graph_nlp: ExtractGraphNLPDefaults = field(default_factory=ExtractGraphNLPDefaults)
+    summarize_descriptions: SummarizeDescriptionsDefaults = field(default_factory=SummarizeDescriptionsDefaults)
+    community_reports: CommunityReportDefaults = field(default_factory=CommunityReportDefaults)
     extract_claims: ExtractClaimsDefaults = field(default_factory=ExtractClaimsDefaults)
     prune_graph: PruneGraphDefaults = field(default_factory=PruneGraphDefaults)
     cluster_graph: ClusterGraphDefaults = field(default_factory=ClusterGraphDefaults)

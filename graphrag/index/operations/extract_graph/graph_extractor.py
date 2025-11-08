@@ -75,21 +75,15 @@ class GraphExtractor:
         self._input_text_key = input_text_key or "input_text"
         self._tuple_delimiter_key = tuple_delimiter_key or "tuple_delimiter"
         self._record_delimiter_key = record_delimiter_key or "record_delimiter"
-        self._completion_delimiter_key = (
-            completion_delimiter_key or "completion_delimiter"
-        )
+        self._completion_delimiter_key = completion_delimiter_key or "completion_delimiter"
         self._entity_types_key = entity_types_key or "entity_types"
         self._extraction_prompt = prompt or GRAPH_EXTRACTION_PROMPT
         self._max_gleanings = (
-            max_gleanings
-            if max_gleanings is not None
-            else graphrag_config_defaults.extract_graph.max_gleanings
+            max_gleanings if max_gleanings is not None else graphrag_config_defaults.extract_graph.max_gleanings
         )
         self._on_error = on_error or (lambda _e, _s, _d: None)
 
-    async def __call__(
-        self, texts: list[str], prompt_variables: dict[str, Any] | None = None
-    ) -> GraphExtractionResult:
+    async def __call__(self, texts: list[str], prompt_variables: dict[str, Any] | None = None) -> GraphExtractionResult:
         """Call method definition."""
         if prompt_variables is None:
             prompt_variables = {}
@@ -99,17 +93,11 @@ class GraphExtractor:
         # Wire defaults into the prompt variables
         prompt_variables = {
             **prompt_variables,
-            self._tuple_delimiter_key: prompt_variables.get(self._tuple_delimiter_key)
-            or DEFAULT_TUPLE_DELIMITER,
-            self._record_delimiter_key: prompt_variables.get(self._record_delimiter_key)
-            or DEFAULT_RECORD_DELIMITER,
-            self._completion_delimiter_key: prompt_variables.get(
-                self._completion_delimiter_key
-            )
+            self._tuple_delimiter_key: prompt_variables.get(self._tuple_delimiter_key) or DEFAULT_TUPLE_DELIMITER,
+            self._record_delimiter_key: prompt_variables.get(self._record_delimiter_key) or DEFAULT_RECORD_DELIMITER,
+            self._completion_delimiter_key: prompt_variables.get(self._completion_delimiter_key)
             or DEFAULT_COMPLETION_DELIMITER,
-            self._entity_types_key: ",".join(
-                prompt_variables[self._entity_types_key] or DEFAULT_ENTITY_TYPES
-            ),
+            self._entity_types_key: ",".join(prompt_variables[self._entity_types_key] or DEFAULT_ENTITY_TYPES),
         }
 
         for doc_index, text in enumerate(texts):
@@ -140,9 +128,7 @@ class GraphExtractor:
             source_docs=source_doc_map,
         )
 
-    async def _process_document(
-        self, text: str, prompt_variables: dict[str, str]
-    ) -> str:
+    async def _process_document(self, text: str, prompt_variables: dict[str, str]) -> str:
         response = await self._model.achat(
             self._extraction_prompt.format(**{
                 **prompt_variables,
@@ -223,9 +209,7 @@ class GraphExtractor:
                                 str(source_doc_id),
                             })
                         )
-                        node["type"] = (
-                            entity_type if entity_type != "" else node["type"]
-                        )
+                        node["type"] = entity_type if entity_type != "" else node["type"]
                     else:
                         graph.add_node(
                             entity_name,
@@ -234,10 +218,7 @@ class GraphExtractor:
                             source_id=str(source_doc_id),
                         )
 
-                if (
-                    record_attributes[0] == '"relationship"'
-                    and len(record_attributes) >= 5
-                ):
+                if record_attributes[0] == '"relationship"' and len(record_attributes) >= 5:
                     # add this record as edge
                     source = clean_str(record_attributes[1].upper())
                     target = clean_str(record_attributes[2].upper())

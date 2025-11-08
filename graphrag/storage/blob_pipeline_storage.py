@@ -44,9 +44,7 @@ class BlobPipelineStorage(PipelineStorage):
 
         logger.info("Creating blob storage at %s", container_name)
         if connection_string:
-            self._blob_service_client = BlobServiceClient.from_connection_string(
-                connection_string
-            )
+            self._blob_service_client = BlobServiceClient.from_connection_string(connection_string)
         else:
             if storage_account_blob_url is None:
                 msg = "Either connection_string or storage_account_blob_url must be provided."
@@ -62,9 +60,7 @@ class BlobPipelineStorage(PipelineStorage):
         self._path_prefix = path_prefix or ""
         self._storage_account_blob_url = storage_account_blob_url
         self._storage_account_name = (
-            storage_account_blob_url.split("//")[1].split(".")[0]
-            if storage_account_blob_url
-            else None
+            storage_account_blob_url.split("//")[1].split(".")[0] if storage_account_blob_url else None
         )
         logger.debug(
             "creating blob storage at container=%s, path=%s",
@@ -77,10 +73,7 @@ class BlobPipelineStorage(PipelineStorage):
         """Create the container if it does not exist."""
         if not self._container_exists():
             container_name = self._container_name
-            container_names = [
-                container.name
-                for container in self._blob_service_client.list_containers()
-            ]
+            container_names = [container.name for container in self._blob_service_client.list_containers()]
             if container_name not in container_names:
                 self._blob_service_client.create_container(container_name)
 
@@ -92,9 +85,7 @@ class BlobPipelineStorage(PipelineStorage):
     def _container_exists(self) -> bool:
         """Check if the container exists."""
         container_name = self._container_name
-        container_names = [
-            container.name for container in self._blob_service_client.list_containers()
-        ]
+        container_names = [container.name for container in self._blob_service_client.list_containers()]
         return container_name in container_names
 
     def find(
@@ -135,14 +126,10 @@ class BlobPipelineStorage(PipelineStorage):
             if file_filter is None:
                 return True
 
-            return all(
-                re.search(value, item[key]) for key, value in file_filter.items()
-            )
+            return all(re.search(value, item[key]) for key, value in file_filter.items())
 
         try:
-            container_client = self._blob_service_client.get_container_client(
-                self._container_name
-            )
+            container_client = self._blob_service_client.get_container_client(self._container_name)
             all_blobs = list(container_client.list_blobs())
 
             num_loaded = 0
@@ -175,15 +162,11 @@ class BlobPipelineStorage(PipelineStorage):
                 file_filter,
             )
 
-    async def get(
-        self, key: str, as_bytes: bool | None = False, encoding: str | None = None
-    ) -> Any:
+    async def get(self, key: str, as_bytes: bool | None = False, encoding: str | None = None) -> Any:
         """Get a value from the cache."""
         try:
             key = self._keyname(key)
-            container_client = self._blob_service_client.get_container_client(
-                self._container_name
-            )
+            container_client = self._blob_service_client.get_container_client(self._container_name)
             blob_client = container_client.get_blob_client(key)
             blob_data = blob_client.download_blob().readall()
             if not as_bytes:
@@ -199,9 +182,7 @@ class BlobPipelineStorage(PipelineStorage):
         """Set a value in the cache."""
         try:
             key = self._keyname(key)
-            container_client = self._blob_service_client.get_container_client(
-                self._container_name
-            )
+            container_client = self._blob_service_client.get_container_client(self._container_name)
             blob_client = container_client.get_blob_client(key)
             if isinstance(value, bytes):
                 blob_client.upload_blob(value, overwrite=True)
@@ -252,18 +233,14 @@ class BlobPipelineStorage(PipelineStorage):
     async def has(self, key: str) -> bool:
         """Check if a key exists in the cache."""
         key = self._keyname(key)
-        container_client = self._blob_service_client.get_container_client(
-            self._container_name
-        )
+        container_client = self._blob_service_client.get_container_client(self._container_name)
         blob_client = container_client.get_blob_client(key)
         return blob_client.exists()
 
     async def delete(self, key: str) -> None:
         """Delete a key from the cache."""
         key = self._keyname(key)
-        container_client = self._blob_service_client.get_container_client(
-            self._container_name
-        )
+        container_client = self._blob_service_client.get_container_client(self._container_name)
         blob_client = container_client.get_blob_client(key)
         blob_client.delete_blob()
 
@@ -301,9 +278,7 @@ class BlobPipelineStorage(PipelineStorage):
         """Get a value from the cache."""
         try:
             key = self._keyname(key)
-            container_client = self._blob_service_client.get_container_client(
-                self._container_name
-            )
+            container_client = self._blob_service_client.get_container_client(self._container_name)
             blob_client = container_client.get_blob_client(key)
             timestamp = blob_client.download_blob().properties.creation_time
             return get_timestamp_formatted_with_local_tz(timestamp)
@@ -352,14 +327,10 @@ def validate_blob_container_name(container_name: str):
 
     # Check for consecutive hyphens
     if "--" in container_name:
-        return ValueError(
-            f"Container name cannot contain consecutive hyphens. Name provided was {container_name}."
-        )
+        return ValueError(f"Container name cannot contain consecutive hyphens. Name provided was {container_name}.")
 
     # Check for hyphens at the end of the name
     if container_name[-1] == "-":
-        return ValueError(
-            f"Container name cannot end with a hyphen. Name provided was {container_name}."
-        )
+        return ValueError(f"Container name cannot end with a hyphen. Name provided was {container_name}.")
 
     return True

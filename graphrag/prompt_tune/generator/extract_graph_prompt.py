@@ -59,11 +59,7 @@ def create_extract_graph_prompt(
     tokenizer = tokenizer or get_tokenizer()
 
     tokens_left = (
-        max_token_count
-        - tokenizer.num_tokens(prompt)
-        - tokenizer.num_tokens(entity_types)
-        if entity_types
-        else 0
+        max_token_count - tokenizer.num_tokens(prompt) - tokenizer.num_tokens(entity_types) if entity_types else 0
     )
 
     examples_prompt = ""
@@ -72,13 +68,9 @@ def create_extract_graph_prompt(
     for i, output in enumerate(examples):
         input = docs[i]
         example_formatted = (
-            EXAMPLE_EXTRACTION_TEMPLATE.format(
-                n=i + 1, input_text=input, entity_types=entity_types, output=output
-            )
+            EXAMPLE_EXTRACTION_TEMPLATE.format(n=i + 1, input_text=input, entity_types=entity_types, output=output)
             if entity_types
-            else UNTYPED_EXAMPLE_EXTRACTION_TEMPLATE.format(
-                n=i + 1, input_text=input, output=output
-            )
+            else UNTYPED_EXAMPLE_EXTRACTION_TEMPLATE.format(n=i + 1, input_text=input, output=output)
         )
 
         example_tokens = tokenizer.num_tokens(example_formatted)
@@ -91,9 +83,7 @@ def create_extract_graph_prompt(
         tokens_left -= example_tokens
 
     prompt = (
-        prompt.format(
-            entity_types=entity_types, examples=examples_prompt, language=language
-        )
+        prompt.format(entity_types=entity_types, examples=examples_prompt, language=language)
         if entity_types
         else prompt.format(examples=examples_prompt, language=language)
     )

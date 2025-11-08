@@ -49,9 +49,7 @@ def with_cache(
         is_streaming = kwargs.get("stream", False)
         if is_streaming:
             return sync_fn(**kwargs)
-        cache_key = get_cache_key(
-            model_config=model_config, prefix=cache_key_prefix, **kwargs
-        )
+        cache_key = get_cache_key(model_config=model_config, prefix=cache_key_prefix, **kwargs)
         event_loop = asyncio.get_event_loop()
         cached_response = event_loop.run_until_complete(cache.get(cache_key))
         if (
@@ -70,9 +68,7 @@ def with_cache(
                 # to make the request.
                 ...
         response = sync_fn(**kwargs)
-        event_loop.run_until_complete(
-            cache.set(cache_key, {"response": response.model_dump()})
-        )
+        event_loop.run_until_complete(cache.set(cache_key, {"response": response.model_dump()}))
         return response
 
     async def _wrapped_with_cache_async(
@@ -81,9 +77,7 @@ def with_cache(
         is_streaming = kwargs.get("stream", False)
         if is_streaming:
             return await async_fn(**kwargs)
-        cache_key = get_cache_key(
-            model_config=model_config, prefix=cache_key_prefix, **kwargs
-        )
+        cache_key = get_cache_key(model_config=model_config, prefix=cache_key_prefix, **kwargs)
         cached_response = await cache.get(cache_key)
         if (
             cached_response is not None

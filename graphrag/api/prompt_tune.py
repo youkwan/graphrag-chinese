@@ -56,9 +56,7 @@ logger = logging.getLogger(__name__)
 async def generate_indexing_prompts(
     config: GraphRagConfig,
     chunk_size: PositiveInt = graphrag_config_defaults.chunks.size,
-    overlap: Annotated[
-        int, annotated_types.Gt(-1)
-    ] = graphrag_config_defaults.chunks.overlap,
+    overlap: Annotated[int, annotated_types.Gt(-1)] = graphrag_config_defaults.chunks.overlap,
     limit: PositiveInt = 15,
     selection_method: DocSelectionType = DocSelectionType.RANDOM,
     domain: str | None = None,
@@ -137,9 +135,7 @@ async def generate_indexing_prompts(
     )
 
     entity_types = None
-    extract_graph_llm_settings = config.get_language_model_config(
-        config.extract_graph.model_id
-    )
+    extract_graph_llm_settings = config.get_language_model_config(config.extract_graph.model_id)
     if discover_entity_types:
         logger.info("Generating entity types...")
         entity_types = await generate_entity_types(
@@ -179,9 +175,7 @@ async def generate_indexing_prompts(
     )
 
     logger.info("Generating community reporter role...")
-    community_reporter_role = await generate_community_reporter_role(
-        llm, domain=domain, persona=persona, docs=doc_list
-    )
+    community_reporter_role = await generate_community_reporter_role(llm, domain=domain, persona=persona, docs=doc_list)
 
     logger.info("Generating community summarization prompt...")
     community_summarization_prompt = create_community_summarization_prompt(

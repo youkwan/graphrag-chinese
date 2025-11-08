@@ -10,6 +10,4 @@ from graphrag.language_model.factory import ModelFactory
 from tests.mock_provider import MockChatLLM, MockEmbeddingLLM
 
 ModelFactory.register_chat(ModelType.MockChat, lambda **kwargs: MockChatLLM(**kwargs))
-ModelFactory.register_embedding(
-    ModelType.MockEmbedding, lambda **kwargs: MockEmbeddingLLM(**kwargs)
-)
+ModelFactory.register_embedding(ModelType.MockEmbedding, lambda **kwargs: MockEmbeddingLLM(**kwargs))

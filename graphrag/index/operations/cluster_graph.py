@@ -64,17 +64,13 @@ def _compute_leiden_communities(
     if use_lcc:
         graph = stable_largest_connected_component(graph)
 
-    community_mapping = hierarchical_leiden(
-        graph, max_cluster_size=max_cluster_size, random_seed=seed
-    )
+    community_mapping = hierarchical_leiden(graph, max_cluster_size=max_cluster_size, random_seed=seed)
     results: dict[int, dict[str, int]] = {}
     hierarchy: dict[int, int] = {}
     for partition in community_mapping:
         results[partition.level] = results.get(partition.level, {})
         results[partition.level][partition.node] = partition.cluster
 
-        hierarchy[partition.cluster] = (
-            partition.parent_cluster if partition.parent_cluster is not None else -1
-        )
+        hierarchy[partition.cluster] = partition.parent_cluster if partition.parent_cluster is not None else -1
 
     return results, hierarchy

@@ -71,17 +71,13 @@ class TestLanceDBVectorStore:
         temp_dir = tempfile.mkdtemp()
         try:
             vector_store = LanceDBVectorStore(
-                vector_store_schema_config=VectorStoreSchemaConfig(
-                    index_name="test_collection", vector_size=5
-                )
+                vector_store_schema_config=VectorStoreSchemaConfig(index_name="test_collection", vector_size=5)
             )
             vector_store.connect(db_uri=temp_dir)
             vector_store.load_documents(sample_documents[:2])
 
             if vector_store.index_name:
-                assert (
-                    vector_store.index_name in vector_store.db_connection.table_names()
-                )
+                assert vector_store.index_name in vector_store.db_connection.table_names()
 
             doc = vector_store.search_by_id("1")
             assert doc.id == "1"
@@ -94,9 +90,7 @@ class TestLanceDBVectorStore:
             filter_query = vector_store.filter_by_id(["1"])
             assert filter_query == "id in ('1')"
 
-            results = vector_store.similarity_search_by_vector(
-                [0.1, 0.2, 0.3, 0.4, 0.5], k=2
-            )
+            results = vector_store.similarity_search_by_vector([0.1, 0.2, 0.3, 0.4, 0.5], k=2)
             assert 1 <= len(results) <= 2
             assert isinstance(results[0].score, float)
 
@@ -110,9 +104,7 @@ class TestLanceDBVectorStore:
             def mock_embedder(text: str) -> list[float]:
                 return [0.1, 0.2, 0.3, 0.4, 0.5]
 
-            text_results = vector_store.similarity_search_by_text(
-                "test query", mock_embedder, k=2
-            )
+            text_results = vector_store.similarity_search_by_text("test query", mock_embedder, k=2)
             assert 1 <= len(text_results) <= 2
             assert isinstance(text_results[0].score, float)
 
@@ -130,9 +122,7 @@ class TestLanceDBVectorStore:
         temp_dir = tempfile.mkdtemp()
         try:
             vector_store = LanceDBVectorStore(
-                vector_store_schema_config=VectorStoreSchemaConfig(
-                    index_name="empty_collection", vector_size=5
-                )
+                vector_store_schema_config=VectorStoreSchemaConfig(index_name="empty_collection", vector_size=5)
             )
             vector_store.connect(db_uri=temp_dir)
 
@@ -144,15 +134,13 @@ class TestLanceDBVectorStore:
                 attributes={"title": "Tmp"},
             )
             vector_store.load_documents([sample_doc])
-            vector_store.db_connection.open_table(
-                vector_store.index_name if vector_store.index_name else ""
-            ).delete("id = 'tmp'")
+            vector_store.db_connection.open_table(vector_store.index_name if vector_store.index_name else "").delete(
+                "id = 'tmp'"
+            )
 
             # Should still have the collection
             if vector_store.index_name:
-                assert (
-                    vector_store.index_name in vector_store.db_connection.table_names()
-                )
+                assert vector_store.index_name in vector_store.db_connection.table_names()
 
             # Add a document after creating an empty collection
             doc = VectorStoreDocument(
@@ -176,9 +164,7 @@ class TestLanceDBVectorStore:
         temp_dir = tempfile.mkdtemp()
         try:
             vector_store = LanceDBVectorStore(
-                vector_store_schema_config=VectorStoreSchemaConfig(
-                    index_name="filter_collection", vector_size=5
-                )
+                vector_store_schema_config=VectorStoreSchemaConfig(index_name="filter_collection", vector_size=5)
             )
 
             vector_store.connect(db_uri=temp_dir)
@@ -187,9 +173,7 @@ class TestLanceDBVectorStore:
 
             # Filter to include only documents about animals
             vector_store.filter_by_id(["1", "2"])
-            results = vector_store.similarity_search_by_vector(
-                [0.1, 0.2, 0.3, 0.4, 0.5], k=3
-            )
+            results = vector_store.similarity_search_by_vector([0.1, 0.2, 0.3, 0.4, 0.5], k=3)
 
             # Should return at most 2 documents (the filtered ones)
             assert len(results) <= 2
@@ -218,9 +202,7 @@ class TestLanceDBVectorStore:
             vector_store.load_documents(sample_documents[:2])
 
             if vector_store.index_name:
-                assert (
-                    vector_store.index_name in vector_store.db_connection.table_names()
-                )
+                assert vector_store.index_name in vector_store.db_connection.table_names()
 
             doc = vector_store.search_by_id("1")
             assert doc.id == "1"
@@ -233,9 +215,7 @@ class TestLanceDBVectorStore:
             filter_query = vector_store.filter_by_id(["1"])
             assert filter_query == f"{vector_store.id_field} in ('1')"
 
-            results = vector_store.similarity_search_by_vector(
-                [0.1, 0.2, 0.3, 0.4, 0.5], k=2
-            )
+            results = vector_store.similarity_search_by_vector([0.1, 0.2, 0.3, 0.4, 0.5], k=2)
             assert 1 <= len(results) <= 2
             assert isinstance(results[0].score, float)
 
@@ -249,9 +229,7 @@ class TestLanceDBVectorStore:
             def mock_embedder(text: str) -> list[float]:
                 return [0.1, 0.2, 0.3, 0.4, 0.5]
 
-            text_results = vector_store.similarity_search_by_text(
-                "test query", mock_embedder, k=2
-            )
+            text_results = vector_store.similarity_search_by_text("test query", mock_embedder, k=2)
             assert 1 <= len(text_results) <= 2
             assert isinstance(text_results[0].score, float)
 

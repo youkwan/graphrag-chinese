@@ -8,9 +8,7 @@ from graphrag.prompt_tune.defaults import DEFAULT_TASK
 from graphrag.prompt_tune.prompt.persona import GENERATE_PERSONA_PROMPT
 
 
-async def generate_persona(
-    model: ChatModel, domain: str, task: str = DEFAULT_TASK
-) -> str:
+async def generate_persona(model: ChatModel, domain: str, task: str = DEFAULT_TASK) -> str:
     """Generate an LLM persona to use for GraphRAG prompts.
 
     Parameters

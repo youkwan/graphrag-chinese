@@ -38,9 +38,7 @@ async def test_find():
 async def test_get_creation_date():
     storage = FilePipelineStorage()
 
-    creation_date = await storage.get_creation_date(
-        "tests/fixtures/text/input/dulce.txt"
-    )
+    creation_date = await storage.get_creation_date("tests/fixtures/text/input/dulce.txt")
 
     datetime_format = "%Y-%m-%d %H:%M:%S %z"
     parsed_datetime = datetime.strptime(creation_date, datetime_format).astimezone()

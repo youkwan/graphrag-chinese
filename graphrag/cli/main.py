@@ -64,9 +64,7 @@ def path_autocomplete(
         # Apply wildcard matching if required
         if match_wildcard:
             completions = filter(
-                lambda i: wildcard_match(i, match_wildcard)
-                if match_wildcard
-                else False,
+                lambda i: wildcard_match(i, match_wildcard) if match_wildcard else False,
                 completions,
             )
 
@@ -159,10 +157,7 @@ def _index_cli(
     dry_run: bool = typer.Option(
         False,
         "--dry-run",
-        help=(
-            "Run the indexing pipeline without executing any steps "
-            "to inspect and validate the configuration."
-        ),
+        help=("Run the indexing pipeline without executing any steps to inspect and validate the configuration."),
     ),
     cache: bool = typer.Option(
         True,
@@ -178,10 +173,7 @@ def _index_cli(
         None,
         "--output",
         "-o",
-        help=(
-            "Indexing pipeline output directory. "
-            "Overrides output.base_dir in the configuration file."
-        ),
+        help=("Indexing pipeline output directory. Overrides output.base_dir in the configuration file."),
         dir_okay=True,
         writable=True,
         resolve_path=True,
@@ -257,10 +249,7 @@ def _update_cli(
         None,
         "--output",
         "-o",
-        help=(
-            "Indexing pipeline output directory. "
-            "Overrides output.base_dir in the configuration file."
-        ),
+        help=("Indexing pipeline output directory. Overrides output.base_dir in the configuration file."),
         dir_okay=True,
         writable=True,
         resolve_path=True,
@@ -466,8 +455,7 @@ def _query_cli(
         2,
         "--community-level",
         help=(
-            "Leiden hierarchy level from which to load community reports. "
-            "Higher values represent smaller communities."
+            "Leiden hierarchy level from which to load community reports. Higher values represent smaller communities."
         ),
     ),
     dynamic_community_selection: bool = typer.Option(
@@ -479,8 +467,7 @@ def _query_cli(
         "Multiple Paragraphs",
         "--response-type",
         help=(
-            "Free-form description of the desired response format "
-            "(e.g. 'Single Sentence', 'List of 3-7 Points', etc.)."
+            "Free-form description of the desired response format (e.g. 'Single Sentence', 'List of 3-7 Points', etc.)."
         ),
     ),
     streaming: bool = typer.Option(

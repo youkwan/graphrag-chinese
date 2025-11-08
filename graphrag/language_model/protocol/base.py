@@ -24,9 +24,7 @@ class EmbeddingModel(Protocol):
     config: LanguageModelConfig
     """Passthrough of the config used to create the model instance."""
 
-    async def aembed_batch(
-        self, text_list: list[str], **kwargs: Any
-    ) -> list[list[float]]:
+    async def aembed_batch(self, text_list: list[str], **kwargs: Any) -> list[list[float]]:
         """
         Generate an embedding vector for the given list of strings.
 
@@ -94,9 +92,7 @@ class ChatModel(Protocol):
     config: LanguageModelConfig
     """Passthrough of the config used to create the model instance."""
 
-    async def achat(
-        self, prompt: str, history: list | None = None, **kwargs: Any
-    ) -> ModelResponse:
+    async def achat(self, prompt: str, history: list | None = None, **kwargs: Any) -> ModelResponse:
         """
         Generate a response for the given text.
 
@@ -112,9 +108,7 @@ class ChatModel(Protocol):
         """
         ...
 
-    async def achat_stream(
-        self, prompt: str, history: list | None = None, **kwargs: Any
-    ) -> AsyncGenerator[str, None]:
+    async def achat_stream(self, prompt: str, history: list | None = None, **kwargs: Any) -> AsyncGenerator[str, None]:
         """
         Generate a response for the given text using a streaming interface.
 
@@ -130,9 +124,7 @@ class ChatModel(Protocol):
         yield ""  # Yield an empty string so that the function is recognized as a generator
         ...
 
-    def chat(
-        self, prompt: str, history: list | None = None, **kwargs: Any
-    ) -> ModelResponse:
+    def chat(self, prompt: str, history: list | None = None, **kwargs: Any) -> ModelResponse:
         """
         Generate a response for the given text.
 
@@ -148,9 +140,7 @@ class ChatModel(Protocol):
         """
         ...
 
-    def chat_stream(
-        self, prompt: str, history: list | None = None, **kwargs: Any
-    ) -> Generator[str, None]:
+    def chat_stream(self, prompt: str, history: list | None = None, **kwargs: Any) -> Generator[str, None]:
         """
         Generate a response for the given text using a streaming interface.
 

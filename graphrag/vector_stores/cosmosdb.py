@@ -27,12 +27,8 @@ class CosmosDBVectorStore(BaseVectorStore):
     _database_client: DatabaseProxy
     _container_client: ContainerProxy
 
-    def __init__(
-        self, vector_store_schema_config: VectorStoreSchemaConfig, **kwargs: Any
-    ) -> None:
-        super().__init__(
-            vector_store_schema_config=vector_store_schema_config, **kwargs
-        )
+    def __init__(self, vector_store_schema_config: VectorStoreSchemaConfig, **kwargs: Any) -> None:
+        super().__init__(vector_store_schema_config=vector_store_schema_config, **kwargs)
 
     def connect(self, **kwargs: Any) -> Any:
         """Connect to CosmosDB vector storage."""
@@ -44,9 +40,7 @@ class CosmosDBVectorStore(BaseVectorStore):
             if not url:
                 msg = "Either connection_string or url must be provided."
                 raise ValueError(msg)
-            self._cosmos_client = CosmosClient(
-                url=url, credential=DefaultAzureCredential()
-            )
+            self._cosmos_client = CosmosClient(url=url, credential=DefaultAzureCredential())
 
         database_name = kwargs.get("database_name")
         if database_name is None:
@@ -65,9 +59,7 @@ class CosmosDBVectorStore(BaseVectorStore):
     def _create_database(self) -> None:
         """Create the database if it doesn't exist."""
         self._cosmos_client.create_database_if_not_exists(id=self._database_name)
-        self._database_client = self._cosmos_client.get_database_client(
-            self._database_name
-        )
+        self._database_client = self._cosmos_client.get_database_client(self._database_name)
 
     def _delete_database(self) -> None:
         """Delete the database if it exists."""
@@ -76,9 +68,7 @@ class CosmosDBVectorStore(BaseVectorStore):
 
     def _database_exists(self) -> bool:
         """Check if the database exists."""
-        existing_database_names = [
-            database["id"] for database in self._cosmos_client.list_databases()
-        ]
+        existing_database_names = [database["id"] for database in self._cosmos_client.list_databases()]
         return self._database_name in existing_database_names
 
     def _create_container(self) -> None:
@@ -111,9 +101,7 @@ class CosmosDBVectorStore(BaseVectorStore):
         # Currently, the CosmosDB emulator does not support the diskANN policy.
         try:
             # First try with the standard diskANN policy
-            indexing_policy["vectorIndexes"] = [
-                {"path": f"/{self.vector_field}", "type": "diskANN"}
-            ]
+            indexing_policy["vectorIndexes"] = [{"path": f"/{self.vector_field}", "type": "diskANN"}]
 
             # Create the container and container client
             self._database_client.create_container_if_not_exists(
@@ -134,9 +122,7 @@ class CosmosDBVectorStore(BaseVectorStore):
                 vector_embedding_policy=vector_embedding_policy,
             )
 
-        self._container_client = self._database_client.get_container_client(
-            self._container_name
-        )
+        self._container_client = self._database_client.get_container_client(self._container_name)
 
     def _delete_container(self) -> None:
         """Delete the vector store container in the database if it exists."""
@@ -145,14 +131,10 @@ class CosmosDBVectorStore(BaseVectorStore):
 
     def _container_exists(self) -> bool:
         """Check if the container name exists in the database."""
-        existing_container_names = [
-            container["id"] for container in self._database_client.list_containers()
-        ]
+        existing_container_names = [container["id"] for container in self._database_client.list_containers()]
         return self._container_name in existing_container_names
 
-    def load_documents(
-        self, documents: list[VectorStoreDocument], overwrite: bool = True
-    ) -> None:
+    def load_documents(self, documents: list[VectorStoreDocument], overwrite: bool = True) -> None:
         """Load documents into CosmosDB."""
         # Create a CosmosDB container on overwrite
         if overwrite:
@@ -223,9 +205,7 @@ class CosmosDBVectorStore(BaseVectorStore):
                 item["SimilarityScore"] = similarity
 
             # Sort by similarity score (higher is better) and take top k
-            items = sorted(
-                items, key=lambda x: x.get("SimilarityScore", 0.0), reverse=True
-            )[:k]
+            items = sorted(items, key=lambda x: x.get("SimilarityScore", 0.0), reverse=True)[:k]
 
         return [
             VectorStoreSearchResult(
@@ -246,9 +226,7 @@ class CosmosDBVectorStore(BaseVectorStore):
         """Perform a text-based similarity search."""
         query_embedding = text_embedder(text)
         if query_embedding:
-            return self.similarity_search_by_vector(
-                query_embedding=query_embedding, k=k
-            )
+            return self.similarity_search_by_vector(query_embedding=query_embedding, k=k)
         return []
 
     def filter_by_id(self, include_ids: list[str] | list[int]) -> Any:
@@ -260,9 +238,7 @@ class CosmosDBVectorStore(BaseVectorStore):
                 id_filter = ", ".join([f"'{id}'" for id in include_ids])
             else:
                 id_filter = ", ".join([str(id) for id in include_ids])
-            self.query_filter = (
-                f"SELECT * FROM c WHERE c.{self.id_field} IN ({id_filter})"  # noqa: S608
-            )
+            self.query_filter = f"SELECT * FROM c WHERE c.{self.id_field} IN ({id_filter})"  # noqa: S608
         return self.query_filter
 
     def search_by_id(self, id: str) -> VectorStoreDocument:

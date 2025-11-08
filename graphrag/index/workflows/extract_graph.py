@@ -33,16 +33,10 @@ async def run_workflow(
     logger.info("Workflow started: extract_graph")
     text_units = await load_table_from_storage("text_units", context.output_storage)
 
-    extract_graph_llm_settings = config.get_language_model_config(
-        config.extract_graph.model_id
-    )
-    extraction_strategy = config.extract_graph.resolved_strategy(
-        config.root_dir, extract_graph_llm_settings
-    )
+    extract_graph_llm_settings = config.get_language_model_config(config.extract_graph.model_id)
+    extraction_strategy = config.extract_graph.resolved_strategy(config.root_dir, extract_graph_llm_settings)
 
-    summarization_llm_settings = config.get_language_model_config(
-        config.summarize_descriptions.model_id
-    )
+    summarization_llm_settings = config.get_language_model_config(config.summarize_descriptions.model_id)
     summarization_strategy = config.summarize_descriptions.resolved_strategy(
         config.root_dir, summarization_llm_settings
     )
@@ -63,12 +57,8 @@ async def run_workflow(
     await write_table_to_storage(relationships, "relationships", context.output_storage)
 
     if config.snapshots.raw_graph:
-        await write_table_to_storage(
-            raw_entities, "raw_entities", context.output_storage
-        )
-        await write_table_to_storage(
-            raw_relationships, "raw_relationships", context.output_storage
-        )
+        await write_table_to_storage(raw_entities, "raw_entities", context.output_storage)
+        await write_table_to_storage(raw_relationships, "raw_relationships", context.output_storage)
 
     logger.info("Workflow completed: extract_graph")
     return WorkflowFunctionOutput(
@@ -110,9 +100,7 @@ async def extract_graph(
         raise ValueError(error_msg)
 
     if not _validate_data(extracted_relationships):
-        error_msg = (
-            "Entity Extraction failed. No relationships detected during extraction."
-        )
+        error_msg = "Entity Extraction failed. No relationships detected during extraction."
         logger.error(error_msg)
         raise ValueError(error_msg)
 

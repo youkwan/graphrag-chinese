@@ -36,8 +36,6 @@ async def run_workflow(
     return WorkflowFunctionOutput(result=output)
 
 
-async def load_input_documents(
-    config: InputConfig, storage: PipelineStorage
-) -> pd.DataFrame:
+async def load_input_documents(config: InputConfig, storage: PipelineStorage) -> pd.DataFrame:
     """Load and parse input documents into a standard format."""
     return await create_input(config, storage)

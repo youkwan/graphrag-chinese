@@ -98,26 +98,19 @@ def read_indexer_reports(
         nodes_df = nodes_df.groupby(["title"]).agg({"community": "max"}).reset_index()
         filtered_community_df = nodes_df["community"].drop_duplicates()
 
-        reports_df = reports_df.merge(
-            filtered_community_df, on="community", how="inner"
-        )
+        reports_df = reports_df.merge(filtered_community_df, on="community", how="inner")
 
     if config and (
-        content_embedding_col not in reports_df.columns
-        or reports_df.loc[:, content_embedding_col].isna().any()
+        content_embedding_col not in reports_df.columns or reports_df.loc[:, content_embedding_col].isna().any()
     ):
         # TODO: Find a way to retrieve the right embedding model id.
-        embedding_model_settings = config.get_language_model_config(
-            "default_embedding_model"
-        )
+        embedding_model_settings = config.get_language_model_config("default_embedding_model")
         embedder = ModelManager().get_or_create_embedding_model(
             name="default_embedding",
             model_type=embedding_model_settings.type,
             config=embedding_model_settings,
         )
-        reports_df = embed_community_reports(
-            reports_df, embedder, embedding_col=content_embedding_col
-        )
+        reports_df = embed_community_reports(reports_df, embedder, embedding_col=content_embedding_col)
 
     return read_community_reports(
         df=reports_df,
@@ -142,12 +135,8 @@ def read_indexer_entities(
     community_level: int | None,
 ) -> list[Entity]:
     """Read in the Entities from the raw indexing outputs."""
-    community_join = communities.explode("entity_ids").loc[
-        :, ["community", "level", "entity_ids"]
-    ]
-    nodes_df = entities.merge(
-        community_join, left_on="id", right_on="entity_ids", how="left"
-    )
+    community_join = communities.explode("entity_ids").loc[:, ["community", "level", "entity_ids"]]
+    nodes_df = entities.merge(community_join, left_on="id", right_on="entity_ids", how="left")
 
     if community_level is not None:
         nodes_df = _filter_under_community_level(nodes_df, community_level)
@@ -156,12 +145,8 @@ def read_indexer_entities(
     nodes_df["community"] = nodes_df["community"].fillna(-1)
     # group entities by id and degree and remove duplicated community IDs
     nodes_df = nodes_df.groupby(["id"]).agg({"community": set}).reset_index()
-    nodes_df["community"] = nodes_df["community"].apply(
-        lambda x: [str(int(i)) for i in x]
-    )
-    final_df = nodes_df.merge(entities, on="id", how="inner").drop_duplicates(
-        subset=["id"]
-    )
+    nodes_df["community"] = nodes_df["community"].apply(lambda x: [str(int(i)) for i in x])
+    final_df = nodes_df.merge(entities, on="id", how="inner").drop_duplicates(subset=["id"])
     # read entity dataframe to knowledge model objects
     return read_entities(
         df=final_df,
@@ -191,14 +176,10 @@ def read_indexer_communities(
     reports_df = final_community_reports
 
     # ensure communities matches community reports
-    missing_reports = communities_df[
-        ~communities_df.community.isin(reports_df.community.unique())
-    ].community.to_list()
+    missing_reports = communities_df[~communities_df.community.isin(reports_df.community.unique())].community.to_list()
     if len(missing_reports):
         logger.warning("Missing reports for communities: %s", missing_reports)
-        communities_df = communities_df.loc[
-            communities_df.community.isin(reports_df.community.unique())
-        ]
+        communities_df = communities_df.loc[communities_df.community.isin(reports_df.community.unique())]
         nodes_df = nodes_df.loc[nodes_df.community.isin(reports_df.community.unique())]
 
     return read_communities(
@@ -228,16 +209,12 @@ def embed_community_reports(
         raise ValueError(error_msg)
 
     if embedding_col not in reports_df.columns:
-        reports_df[embedding_col] = reports_df.loc[:, source_col].apply(
-            lambda x: embedder.embed(x)
-        )
+        reports_df[embedding_col] = reports_df.loc[:, source_col].apply(lambda x: embedder.embed(x))
 
     return reports_df
 
 
-def _filter_under_community_level(
-    df: pd.DataFrame, community_level: int
-) -> pd.DataFrame:
+def _filter_under_community_level(df: pd.DataFrame, community_level: int) -> pd.DataFrame:
     return cast(
         "pd.DataFrame",
         df[df.level <= community_level],

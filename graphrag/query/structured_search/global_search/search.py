@@ -78,9 +78,7 @@ class GlobalSearch(BaseSearch[GlobalContextBuilder]):
         self.reduce_system_prompt = reduce_system_prompt or REDUCE_SYSTEM_PROMPT
         self.response_type = response_type
         self.allow_general_knowledge = allow_general_knowledge
-        self.general_knowledge_inclusion_prompt = (
-            general_knowledge_inclusion_prompt or GENERAL_KNOWLEDGE_INSTRUCTION
-        )
+        self.general_knowledge_inclusion_prompt = general_knowledge_inclusion_prompt or GENERAL_KNOWLEDGE_INSTRUCTION
         self.callbacks = callbacks or []
         self.max_data_tokens = max_data_tokens
 
@@ -217,9 +215,7 @@ class GlobalSearch(BaseSearch[GlobalContextBuilder]):
         start_time = time.time()
         search_prompt = ""
         try:
-            search_prompt = self.map_system_prompt.format(
-                context_data=context_data, max_length=max_length
-            )
+            search_prompt = self.map_system_prompt.format(context_data=context_data, max_length=max_length)
             search_messages = [
                 {"role": "system", "content": search_prompt},
             ]
@@ -236,9 +232,7 @@ class GlobalSearch(BaseSearch[GlobalContextBuilder]):
                 # parse search response json
                 processed_response = self._parse_search_response(search_response)
             except ValueError:
-                logger.warning(
-                    "Warning: Error parsing search response json - skipping this batch"
-                )
+                logger.warning("Warning: Error parsing search response json - skipping this batch")
                 processed_response = []
 
             return SearchResult(
@@ -352,18 +346,13 @@ class GlobalSearch(BaseSearch[GlobalContextBuilder]):
             total_tokens = 0
             for point in filtered_key_points:
                 formatted_response_data = []
-                formatted_response_data.append(
-                    f"----Analyst {point['analyst'] + 1}----"
-                )
+                formatted_response_data.append(f"----Analyst {point['analyst'] + 1}----")
                 formatted_response_data.append(
                     f"Importance Score: {point['score']}"  # type: ignore
                 )
                 formatted_response_data.append(point["answer"])  # type: ignore
                 formatted_response_text = "\n".join(formatted_response_data)
-                if (
-                    total_tokens + len(self.tokenizer.encode(formatted_response_text))
-                    > self.max_data_tokens
-                ):
+                if total_tokens + len(self.tokenizer.encode(formatted_response_text)) > self.max_data_tokens:
                     break
                 data.append(formatted_response_text)
                 total_tokens += len(self.tokenizer.encode(formatted_response_text))
@@ -465,10 +454,7 @@ class GlobalSearch(BaseSearch[GlobalContextBuilder]):
                 point["answer"],
             ]
             formatted_response_text = "\n".join(formatted_response_data)
-            if (
-                total_tokens + len(self.tokenizer.encode(formatted_response_text))
-                > self.max_data_tokens
-            ):
+            if total_tokens + len(self.tokenizer.encode(formatted_response_text)) > self.max_data_tokens:
                 break
             data.append(formatted_response_text)
             total_tokens += len(self.tokenizer.encode(formatted_response_text))

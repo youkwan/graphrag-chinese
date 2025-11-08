@@ -42,25 +42,17 @@ async def load_files(
             logger.warning("Warning! Error loading file %s. Skipping...", file)
             logger.warning("Error: %s", e)
 
-    logger.info(
-        "Found %d %s files, loading %d", len(files), config.file_type, len(files_loaded)
-    )
+    logger.info("Found %d %s files, loading %d", len(files), config.file_type, len(files_loaded))
     result = pd.concat(files_loaded)
-    total_files_log = (
-        f"Total number of unfiltered {config.file_type} rows: {len(result)}"
-    )
+    total_files_log = f"Total number of unfiltered {config.file_type} rows: {len(result)}"
     logger.info(total_files_log)
     return result
 
 
-def process_data_columns(
-    documents: pd.DataFrame, config: InputConfig, path: str
-) -> pd.DataFrame:
+def process_data_columns(documents: pd.DataFrame, config: InputConfig, path: str) -> pd.DataFrame:
     """Process configured data columns of a DataFrame."""
     if "id" not in documents.columns:
-        documents["id"] = documents.apply(
-            lambda x: gen_sha512_hash(x, x.keys()), axis=1
-        )
+        documents["id"] = documents.apply(lambda x: gen_sha512_hash(x, x.keys()), axis=1)
     if config.text_column is not None and "text" not in documents.columns:
         if config.text_column not in documents.columns:
             logger.warning(
@@ -78,9 +70,7 @@ def process_data_columns(
                 path,
             )
         else:
-            documents["title"] = documents.apply(
-                lambda x: x[config.title_column], axis=1
-            )
+            documents["title"] = documents.apply(lambda x: x[config.title_column], axis=1)
     else:
         documents["title"] = documents.apply(lambda _: path, axis=1)
     return documents

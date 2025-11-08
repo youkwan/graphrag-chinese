@@ -22,9 +22,7 @@ def test_create_lancedb_vector_store():
     }
     vector_store = VectorStoreFactory.create_vector_store(
         vector_store_type=VectorStoreType.LanceDB.value,
-        vector_store_schema_config=VectorStoreSchemaConfig(
-            index_name="test_collection"
-        ),
+        vector_store_schema_config=VectorStoreSchemaConfig(index_name="test_collection"),
         kwargs=kwargs,
     )
     assert isinstance(vector_store, LanceDBVectorStore)
@@ -39,9 +37,7 @@ def test_create_azure_ai_search_vector_store():
     }
     vector_store = VectorStoreFactory.create_vector_store(
         vector_store_type=VectorStoreType.AzureAISearch.value,
-        vector_store_schema_config=VectorStoreSchemaConfig(
-            index_name="test_collection"
-        ),
+        vector_store_schema_config=VectorStoreSchemaConfig(index_name="test_collection"),
         kwargs=kwargs,
     )
     assert isinstance(vector_store, AzureAISearchVectorStore)
@@ -56,9 +52,7 @@ def test_create_cosmosdb_vector_store():
 
     vector_store = VectorStoreFactory.create_vector_store(
         vector_store_type=VectorStoreType.CosmosDB.value,
-        vector_store_schema_config=VectorStoreSchemaConfig(
-            index_name="test_collection"
-        ),
+        vector_store_schema_config=VectorStoreSchemaConfig(index_name="test_collection"),
         kwargs=kwargs,
     )
 
@@ -76,9 +70,7 @@ def test_register_and_create_custom_vector_store():
     instance.initialized = True
     custom_vector_store_class.return_value = instance
 
-    VectorStoreFactory.register(
-        "custom", lambda **kwargs: custom_vector_store_class(**kwargs)
-    )
+    VectorStoreFactory.register("custom", lambda **kwargs: custom_vector_store_class(**kwargs))
 
     vector_store = VectorStoreFactory.create_vector_store(
         vector_store_type="custom", vector_store_schema_config=VectorStoreSchemaConfig()

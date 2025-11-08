@@ -24,9 +24,7 @@ class FNLLMCacheProvider(FNLLMCache):
         """Retrieve a value from the cache."""
         return await self._cache.get(key)
 
-    async def set(
-        self, key: str, value: Any, metadata: dict[str, Any] | None = None
-    ) -> None:
+    async def set(self, key: str, value: Any, metadata: dict[str, Any] | None = None) -> None:
         """Write a value into the cache."""
         await self._cache.set(key, value, metadata)
 

@@ -4,9 +4,7 @@
 """LiteLLM Test Utilities."""
 
 
-def bin_time_intervals(
-    time_values: list[float], time_interval: int
-) -> list[list[float]]:
+def bin_time_intervals(time_values: list[float], time_interval: int) -> list[list[float]]:
     """Bin values."""
     bins: list[list[float]] = []
 
@@ -23,9 +21,7 @@ def bin_time_intervals(
     return bins
 
 
-def assert_max_num_values_per_period(
-    periods: list[list[float]], max_values_per_period: int
-):
+def assert_max_num_values_per_period(periods: list[list[float]], max_values_per_period: int):
     """Assert the number of values per period."""
     for period in periods:
         assert len(period) <= max_values_per_period

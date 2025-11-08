@@ -29,9 +29,7 @@ class MockChatLLM:
     ):
         self.responses = config.responses if config and config.responses else responses
         self.response_index = 0
-        self.config = config or LanguageModelConfig(
-            type=ModelType.MockChat, model="gpt-4o", api_key="mock"
-        )
+        self.config = config or LanguageModelConfig(type=ModelType.MockChat, model="gpt-4o", api_key="mock")
 
     async def achat(
         self,
@@ -53,11 +51,7 @@ class MockChatLLM:
             return
 
         for response in self.responses:
-            response = (
-                response.model_dump_json()
-                if isinstance(response, BaseModel)
-                else response
-            )
+            response = response.model_dump_json() if isinstance(response, BaseModel) else response
 
             yield response
 
@@ -75,9 +69,7 @@ class MockChatLLM:
         self.response_index += 1
 
         parsed_json = response if isinstance(response, BaseModel) else None
-        response = (
-            response.model_dump_json() if isinstance(response, BaseModel) else response
-        )
+        response = response.model_dump_json() if isinstance(response, BaseModel) else response
 
         return BaseModelResponse(
             output=BaseModelOutput(content=response),
@@ -98,9 +90,7 @@ class MockEmbeddingLLM:
     """A mock embedding LLM provider."""
 
     def __init__(self, **kwargs: Any):
-        self.config = LanguageModelConfig(
-            type=ModelType.MockEmbedding, model="text-embedding-ada-002", api_key="mock"
-        )
+        self.config = LanguageModelConfig(type=ModelType.MockEmbedding, model="text-embedding-ada-002", api_key="mock")
 
     def embed_batch(self, text_list: list[str], **kwargs: Any) -> list[list[float]]:
         """Generate an embedding for the input text."""
@@ -116,9 +106,7 @@ class MockEmbeddingLLM:
         """Generate an embedding for the input text."""
         return [1.0, 1.0, 1.0]
 
-    async def aembed_batch(
-        self, text_list: list[str], **kwargs: Any
-    ) -> list[list[float]]:
+    async def aembed_batch(self, text_list: list[str], **kwargs: Any) -> list[list[float]]:
         """Generate an embedding for the input text."""
         if isinstance(text_list, str):
             return [[1.0, 1.0, 1.0]]

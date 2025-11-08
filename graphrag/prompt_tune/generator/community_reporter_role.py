@@ -9,9 +9,7 @@ from graphrag.prompt_tune.prompt.community_reporter_role import (
 )
 
 
-async def generate_community_reporter_role(
-    model: ChatModel, domain: str, persona: str, docs: str | list[str]
-) -> str:
+async def generate_community_reporter_role(model: ChatModel, domain: str, persona: str, docs: str | list[str]) -> str:
     """Generate an LLM persona to use for GraphRAG prompts.
 
     Parameters
@@ -26,9 +24,7 @@ async def generate_community_reporter_role(
     - str: The generated domain prompt response.
     """
     docs_str = " ".join(docs) if isinstance(docs, list) else docs
-    domain_prompt = GENERATE_COMMUNITY_REPORTER_ROLE_PROMPT.format(
-        domain=domain, persona=persona, input_text=docs_str
-    )
+    domain_prompt = GENERATE_COMMUNITY_REPORTER_ROLE_PROMPT.format(domain=domain, persona=persona, input_text=docs_str)
 
     response = await model.achat(domain_prompt)
 

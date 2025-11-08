@@ -28,9 +28,7 @@ async def run_workflow(
 ) -> WorkflowFunctionOutput:
     """Update the entities and relationships from a incremental index run."""
     logger.info("Workflow started: update_entities_relationships")
-    output_storage, previous_storage, delta_storage = get_update_storages(
-        config, context.state["update_timestamp"]
-    )
+    output_storage, previous_storage, delta_storage = get_update_storages(config, context.state["update_timestamp"])
 
     (
         merged_entities_df,
@@ -65,9 +63,7 @@ async def _update_entities_and_relationships(
     old_entities = await load_table_from_storage("entities", previous_storage)
     delta_entities = await load_table_from_storage("entities", delta_storage)
 
-    merged_entities_df, entity_id_mapping = _group_and_resolve_entities(
-        old_entities, delta_entities
-    )
+    merged_entities_df, entity_id_mapping = _group_and_resolve_entities(old_entities, delta_entities)
 
     # Update Relationships
     old_relationships = await load_table_from_storage("relationships", previous_storage)
@@ -77,9 +73,7 @@ async def _update_entities_and_relationships(
         delta_relationships,
     )
 
-    summarization_llm_settings = config.get_language_model_config(
-        config.summarize_descriptions.model_id
-    )
+    summarization_llm_settings = config.get_language_model_config(config.summarize_descriptions.model_id)
     summarization_strategy = config.summarize_descriptions.resolved_strategy(
         config.root_dir, summarization_llm_settings
     )
@@ -99,8 +93,6 @@ async def _update_entities_and_relationships(
     # Save the updated entities back to storage
     await write_table_to_storage(merged_entities_df, "entities", output_storage)
 
-    await write_table_to_storage(
-        merged_relationships_df, "relationships", output_storage
-    )
+    await write_table_to_storage(merged_relationships_df, "relationships", output_storage)
 
     return merged_entities_df, merged_relationships_df, entity_id_mapping

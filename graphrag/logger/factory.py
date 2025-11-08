@@ -33,9 +33,7 @@ class LoggerFactory:
     _registry: ClassVar[dict[str, Callable[..., logging.Handler]]] = {}
 
     @classmethod
-    def register(
-        cls, reporting_type: str, creator: Callable[..., logging.Handler]
-    ) -> None:
+    def register(cls, reporting_type: str, creator: Callable[..., logging.Handler]) -> None:
         """Register a custom logger implementation.
 
         Args:

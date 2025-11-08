@@ -161,12 +161,8 @@ class TestRunChain(unittest.IsolatedAsyncioTestCase):
 
         # TODO: The edges might come back in any order, but we're assuming they're coming
         # back in the order that we passed in the docs, that might not be true
-        assert (
-            graph.nodes["TEST_ENTITY_3"].get("source_id") == "2"
-        )  # TEST_ENTITY_3 should be in just 2
-        assert (
-            graph.nodes["TEST_ENTITY_2"].get("source_id") == "1"
-        )  # TEST_ENTITY_2 should be in just 1
+        assert graph.nodes["TEST_ENTITY_3"].get("source_id") == "2"  # TEST_ENTITY_3 should be in just 2
+        assert graph.nodes["TEST_ENTITY_2"].get("source_id") == "1"  # TEST_ENTITY_2 should be in just 1
         ids_str = graph.nodes["TEST_ENTITY_1"].get("source_id") or ""
         assert sorted(ids_str.split(",")) == sorted([
             "1",

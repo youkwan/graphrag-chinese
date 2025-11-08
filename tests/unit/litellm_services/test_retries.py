@@ -43,9 +43,7 @@ retry_factory = RetryFactory()
         ),
     ],
 )
-def test_retries(
-    strategy: str, max_retries: int, max_retry_wait: int, expected_time: float
-) -> None:
+def test_retries(strategy: str, max_retries: int, max_retry_wait: int, expected_time: float) -> None:
     """
     Test various retry strategies with various configurations.
 
@@ -76,9 +74,7 @@ def test_retries(
 
     # subtract 1 from retries because the first call is not a retry
     assert retries - 1 == max_retries, f"Expected {max_retries} retries, got {retries}"
-    assert elapsed_time >= expected_time, (
-        f"Expected elapsed time >= {expected_time}, got {elapsed_time}"
-    )
+    assert elapsed_time >= expected_time, f"Expected elapsed time >= {expected_time}, got {elapsed_time}"
 
 
 @pytest.mark.parametrize(
@@ -110,9 +106,7 @@ def test_retries(
         ),
     ],
 )
-async def test_retries_async(
-    strategy: str, max_retries: int, max_retry_wait: int, expected_time: float
-) -> None:
+async def test_retries_async(strategy: str, max_retries: int, max_retry_wait: int, expected_time: float) -> None:
     """
     Test various retry strategies with various configurations.
 
@@ -143,6 +137,4 @@ async def test_retries_async(
 
     # subtract 1 from retries because the first call is not a retry
     assert retries - 1 == max_retries, f"Expected {max_retries} retries, got {retries}"
-    assert elapsed_time >= expected_time, (
-        f"Expected elapsed time >= {expected_time}, got {elapsed_time}"
-    )
+    assert elapsed_time >= expected_time, f"Expected elapsed time >= {expected_time}, got {elapsed_time}"

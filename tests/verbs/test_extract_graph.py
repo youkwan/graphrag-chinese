@@ -40,18 +40,14 @@ async def test_extract_graph():
     )
 
     config = create_graphrag_config({"models": DEFAULT_MODEL_CONFIG})
-    extract_claims_llm_settings = config.get_language_model_config(
-        config.extract_graph.model_id
-    ).model_dump()
+    extract_claims_llm_settings = config.get_language_model_config(config.extract_graph.model_id).model_dump()
     extract_claims_llm_settings["type"] = ModelType.MockChat
     extract_claims_llm_settings["responses"] = MOCK_LLM_ENTITY_RESPONSES
     config.extract_graph.strategy = {
         "type": "graph_intelligence",
         "llm": extract_claims_llm_settings,
     }
-    summarize_llm_settings = config.get_language_model_config(
-        config.summarize_descriptions.model_id
-    ).model_dump()
+    summarize_llm_settings = config.get_language_model_config(config.summarize_descriptions.model_id).model_dump()
     summarize_llm_settings["type"] = ModelType.MockChat
     summarize_llm_settings["responses"] = MOCK_LLM_SUMMARIZATION_RESPONSES
     config.summarize_descriptions.strategy = {
@@ -64,9 +60,7 @@ async def test_extract_graph():
     await run_workflow(config, context)
 
     nodes_actual = await load_table_from_storage("entities", context.output_storage)
-    edges_actual = await load_table_from_storage(
-        "relationships", context.output_storage
-    )
+    edges_actual = await load_table_from_storage("relationships", context.output_storage)
 
     assert len(nodes_actual.columns) == 5
     assert len(edges_actual.columns) == 5

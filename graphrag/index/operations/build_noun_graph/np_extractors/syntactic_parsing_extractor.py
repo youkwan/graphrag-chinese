@@ -77,52 +77,34 @@ class SyntacticNounPhraseExtractor(BaseNounPhraseExtractor):
         filtered_noun_phrases = set()
         if self.include_named_entities:
             # extract noun chunks + entities then filter overlapping spans
-            entities = [
-                ent for ent in doc.ents if ent.label_ not in self.exclude_entity_tags
-            ]
+            entities = [ent for ent in doc.ents if ent.label_ not in self.exclude_entity_tags]
             spans = entities + list(doc.noun_chunks)
             spans = filter_spans(spans)
 
             # reading missing entities
-            missing_entities = [
-                ent
-                for ent in entities
-                if not any(ent.text in span.text for span in spans)
-            ]
+            missing_entities = [ent for ent in entities if not any(ent.text in span.text for span in spans)]
             spans.extend(missing_entities)
 
             # filtering noun phrases based on some heuristics
-            tagged_noun_phrases = [
-                self._tag_noun_phrases(span, entities) for span in spans
-            ]
+            tagged_noun_phrases = [self._tag_noun_phrases(span, entities) for span in spans]
             for tagged_np in tagged_noun_phrases:
                 if (tagged_np["is_valid_entity"]) or (
-                    (
-                        len(tagged_np["cleaned_tokens"]) > 1
-                        or tagged_np["has_compound_words"]
-                    )
+                    (len(tagged_np["cleaned_tokens"]) > 1 or tagged_np["has_compound_words"])
                     and tagged_np["has_valid_tokens"]
                 ):
                     filtered_noun_phrases.add(tagged_np["cleaned_text"])
         else:
-            tagged_noun_phrases = [
-                self._tag_noun_phrases(chunk, []) for chunk in doc.noun_chunks
-            ]
+            tagged_noun_phrases = [self._tag_noun_phrases(chunk, []) for chunk in doc.noun_chunks]
             for tagged_np in tagged_noun_phrases:
                 if (tagged_np["has_proper_noun"]) or (
-                    (
-                        len(tagged_np["cleaned_tokens"]) > 1
-                        or tagged_np["has_compound_words"]
-                    )
+                    (len(tagged_np["cleaned_tokens"]) > 1 or tagged_np["has_compound_words"])
                     and tagged_np["has_valid_tokens"]
                 ):
                     filtered_noun_phrases.add(tagged_np["cleaned_text"])
 
         return list(filtered_noun_phrases)
 
-    def _tag_noun_phrases(
-        self, noun_chunk: Span, entities: list[Span]
-    ) -> dict[str, Any]:
+    def _tag_noun_phrases(self, noun_chunk: Span, entities: list[Span]) -> dict[str, Any]:
         """Extract attributes of a noun chunk, to be used for filtering."""
         cleaned_tokens = [
             token
@@ -133,13 +115,9 @@ class SyntacticNounPhraseExtractor(BaseNounPhraseExtractor):
             and not token.is_punct
         ]
         cleaned_token_texts = [token.text for token in cleaned_tokens]
-        cleaned_text_string = (
-            self.word_delimiter.join(cleaned_token_texts).replace("\n", "").upper()
-        )
+        cleaned_text_string = self.word_delimiter.join(cleaned_token_texts).replace("\n", "").upper()
 
-        noun_chunk_entity_labels = [
-            (ent.text, ent.label_) for ent in entities if noun_chunk.text == ent.text
-        ]
+        noun_chunk_entity_labels = [(ent.text, ent.label_) for ent in entities if noun_chunk.text == ent.text]
         if noun_chunk_entity_labels:
             noun_chunk_entity_label = noun_chunk_entity_labels[0]
             valid_entity = is_valid_entity(noun_chunk_entity_label, cleaned_token_texts)
@@ -152,9 +130,7 @@ class SyntacticNounPhraseExtractor(BaseNounPhraseExtractor):
             "is_valid_entity": valid_entity,
             "has_proper_nouns": any(token.pos_ == "PROPN" for token in cleaned_tokens),
             "has_compound_words": is_compound(cleaned_token_texts),
-            "has_valid_tokens": has_valid_token_length(
-                cleaned_token_texts, self.max_word_length
-            ),
+            "has_valid_tokens": has_valid_token_length(cleaned_token_texts, self.max_word_length),
         }
 
     def __str__(self) -> str:

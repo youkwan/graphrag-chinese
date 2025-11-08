@@ -28,9 +28,7 @@ logging.getLogger("azure").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-def _get_base_path(
-    dataset: str | None, root: str | None, extra_path: str | None = None
-) -> str:
+def _get_base_path(dataset: str | None, root: str | None, extra_path: str | None = None) -> str:
     """Construct and return the base path for the given dataset and extra path."""
     return os.path.join(  # noqa: PTH118
         os.path.dirname(os.path.realpath(__file__)),  # noqa: PTH120

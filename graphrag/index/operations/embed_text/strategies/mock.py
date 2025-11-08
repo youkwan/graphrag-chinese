@@ -21,12 +21,8 @@ async def run(  # noqa RUF029 async is required for interface
 ) -> TextEmbeddingResult:
     """Run the Claim extraction chain."""
     input = input if isinstance(input, Iterable) else [input]
-    ticker = progress_ticker(
-        callbacks.progress, len(input), description="generate embeddings progress: "
-    )
-    return TextEmbeddingResult(
-        embeddings=[_embed_text(cache, text, ticker) for text in input]
-    )
+    ticker = progress_ticker(callbacks.progress, len(input), description="generate embeddings progress: ")
+    return TextEmbeddingResult(embeddings=[_embed_text(cache, text, ticker) for text in input])
 
 
 def _embed_text(_cache: PipelineCache, _text: str, tick: ProgressTicker) -> list[float]:

@@ -23,9 +23,7 @@ def calculate_root_modularity(
     random_seed: int = 0xDEADBEEF,
 ) -> float:
     """Calculate distance between the modularity of the graph's root clusters and the target modularity."""
-    hcs = hierarchical_leiden(
-        graph, max_cluster_size=max_cluster_size, random_seed=random_seed
-    )
+    hcs = hierarchical_leiden(graph, max_cluster_size=max_cluster_size, random_seed=random_seed)
     root_clusters = hcs.first_level_hierarchical_clustering()
     return modularity(graph, root_clusters)
 
@@ -36,9 +34,7 @@ def calculate_leaf_modularity(
     random_seed: int = 0xDEADBEEF,
 ) -> float:
     """Calculate distance between the modularity of the graph's leaf clusters and the target modularity."""
-    hcs = hierarchical_leiden(
-        graph, max_cluster_size=max_cluster_size, random_seed=random_seed
-    )
+    hcs = hierarchical_leiden(graph, max_cluster_size=max_cluster_size, random_seed=random_seed)
     leaf_clusters = hcs.final_level_hierarchical_clustering()
     return modularity(graph, leaf_clusters)
 
@@ -51,12 +47,8 @@ def calculate_graph_modularity(
 ) -> float:
     """Calculate modularity of the whole graph."""
     if use_root_modularity:
-        return calculate_root_modularity(
-            graph, max_cluster_size=max_cluster_size, random_seed=random_seed
-        )
-    return calculate_leaf_modularity(
-        graph, max_cluster_size=max_cluster_size, random_seed=random_seed
-    )
+        return calculate_root_modularity(graph, max_cluster_size=max_cluster_size, random_seed=random_seed)
+    return calculate_leaf_modularity(graph, max_cluster_size=max_cluster_size, random_seed=random_seed)
 
 
 def calculate_lcc_modularity(
@@ -68,12 +60,8 @@ def calculate_lcc_modularity(
     """Calculate modularity of the largest connected component of the graph."""
     lcc = cast("nx.Graph", largest_connected_component(graph))
     if use_root_modularity:
-        return calculate_root_modularity(
-            lcc, max_cluster_size=max_cluster_size, random_seed=random_seed
-        )
-    return calculate_leaf_modularity(
-        lcc, max_cluster_size=max_cluster_size, random_seed=random_seed
-    )
+        return calculate_root_modularity(lcc, max_cluster_size=max_cluster_size, random_seed=random_seed)
+    return calculate_leaf_modularity(lcc, max_cluster_size=max_cluster_size, random_seed=random_seed)
 
 
 def calculate_weighted_modularity(
@@ -90,9 +78,7 @@ def calculate_weighted_modularity(
     """
     connected_components: list[set] = list(nx.connected_components(graph))
     filtered_components = [
-        component
-        for component in connected_components
-        if len(component) > min_connected_component_size
+        component for component in connected_components if len(component) > min_connected_component_size
     ]
     if len(filtered_components) == 0:
         filtered_components = [graph]
@@ -174,23 +160,17 @@ def calculate_pmi_edge_weights(
 
     total_edge_weights = edges_df[edge_weight_col].sum()
     total_freq_occurrences = nodes_df[node_freq_col].sum()
-    copied_nodes_df["prop_occurrence"] = (
-        copied_nodes_df[node_freq_col] / total_freq_occurrences
-    )
+    copied_nodes_df["prop_occurrence"] = copied_nodes_df[node_freq_col] / total_freq_occurrences
     copied_nodes_df = copied_nodes_df.loc[:, [node_name_col, "prop_occurrence"]]
 
     edges_df["prop_weight"] = edges_df[edge_weight_col] / total_edge_weights
     edges_df = (
-        edges_df.merge(
-            copied_nodes_df, left_on=edge_source_col, right_on=node_name_col, how="left"
-        )
+        edges_df.merge(copied_nodes_df, left_on=edge_source_col, right_on=node_name_col, how="left")
         .drop(columns=[node_name_col])
         .rename(columns={"prop_occurrence": "source_prop"})
     )
     edges_df = (
-        edges_df.merge(
-            copied_nodes_df, left_on=edge_target_col, right_on=node_name_col, how="left"
-        )
+        edges_df.merge(copied_nodes_df, left_on=edge_target_col, right_on=node_name_col, how="left")
         .drop(columns=[node_name_col])
         .rename(columns={"prop_occurrence": "target_prop"})
     )
@@ -223,12 +203,9 @@ def calculate_rrf_edge_weights(
     )
 
     edges_df["pmi_rank"] = edges_df[edge_weight_col].rank(method="min", ascending=False)
-    edges_df["raw_weight_rank"] = edges_df[edge_weight_col].rank(
-        method="min", ascending=False
-    )
+    edges_df["raw_weight_rank"] = edges_df[edge_weight_col].rank(method="min", ascending=False)
     edges_df[edge_weight_col] = edges_df.apply(
-        lambda x: (1 / (rrf_smoothing_factor + x["pmi_rank"]))
-        + (1 / (rrf_smoothing_factor + x["raw_weight_rank"])),
+        lambda x: (1 / (rrf_smoothing_factor + x["pmi_rank"])) + (1 / (rrf_smoothing_factor + x["raw_weight_rank"])),
         axis=1,
     )
 

@@ -48,24 +48,17 @@ async def run_workflow(
     if document_text_embedding in embedded_fields:
         documents = await load_table_from_storage("documents", context.output_storage)
     if relationship_description_embedding in embedded_fields:
-        relationships = await load_table_from_storage(
-            "relationships", context.output_storage
-        )
+        relationships = await load_table_from_storage("relationships", context.output_storage)
     if text_unit_text_embedding in embedded_fields:
         text_units = await load_table_from_storage("text_units", context.output_storage)
-    if (
-        entity_title_embedding in embedded_fields
-        or entity_description_embedding in embedded_fields
-    ):
+    if entity_title_embedding in embedded_fields or entity_description_embedding in embedded_fields:
         entities = await load_table_from_storage("entities", context.output_storage)
     if (
         community_title_embedding in embedded_fields
         or community_summary_embedding in embedded_fields
         or community_full_content_embedding in embedded_fields
     ):
-        community_reports = await load_table_from_storage(
-            "community_reports", context.output_storage
-        )
+        community_reports = await load_table_from_storage("community_reports", context.output_storage)
 
     text_embed = get_embedding_settings(config)
 
@@ -111,15 +104,11 @@ async def generate_text_embeddings(
             "embed_column": "text",
         },
         relationship_description_embedding: {
-            "data": relationships.loc[:, ["id", "description"]]
-            if relationships is not None
-            else None,
+            "data": relationships.loc[:, ["id", "description"]] if relationships is not None else None,
             "embed_column": "description",
         },
         text_unit_text_embedding: {
-            "data": text_units.loc[:, ["id", "text"]]
-            if text_units is not None
-            else None,
+            "data": text_units.loc[:, ["id", "text"]] if text_units is not None else None,
             "embed_column": "text",
         },
         entity_title_embedding: {
@@ -135,21 +124,15 @@ async def generate_text_embeddings(
             "embed_column": "title_description",
         },
         community_title_embedding: {
-            "data": community_reports.loc[:, ["id", "title"]]
-            if community_reports is not None
-            else None,
+            "data": community_reports.loc[:, ["id", "title"]] if community_reports is not None else None,
             "embed_column": "title",
         },
         community_summary_embedding: {
-            "data": community_reports.loc[:, ["id", "summary"]]
-            if community_reports is not None
-            else None,
+            "data": community_reports.loc[:, ["id", "summary"]] if community_reports is not None else None,
             "embed_column": "summary",
         },
         community_full_content_embedding: {
-            "data": community_reports.loc[:, ["id", "full_content"]]
-            if community_reports is not None
-            else None,
+            "data": community_reports.loc[:, ["id", "full_content"]] if community_reports is not None else None,
             "embed_column": "full_content",
         },
     }

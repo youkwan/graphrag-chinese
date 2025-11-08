@@ -29,9 +29,7 @@ def create_full_graph_ui(sv: SessionVariables):
         communities_entities = pd.DataFrame()
 
     level = sv.graph_community_level.value
-    communities_entities_filtered = communities_entities[
-        communities_entities["level"] == level
-    ]
+    communities_entities_filtered = communities_entities[communities_entities["level"] == level]
 
     graph = (
         alt.Chart(communities_entities_filtered)

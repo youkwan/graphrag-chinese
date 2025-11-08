@@ -48,9 +48,7 @@ def test_get_entity_by_id():
             ]
         },
         "7c6f2bc9-47c9-4453-93a3-d2e174a02cd9",
-    ) == Entity(
-        id="7c6f2bc9-47c9-4453-93a3-d2e174a02cd9", short_id="sid3", title="title3"
-    )
+    ) == Entity(id="7c6f2bc9-47c9-4453-93a3-d2e174a02cd9", short_id="sid3", title="title3")
 
     assert get_entity_by_id(
         {
@@ -125,21 +123,13 @@ def test_get_entity_by_key():
         ],
         "id",
         "7c6f2bc9-47c9-4453-93a3-d2e174a02cd9",
-    ) == Entity(
-        id="7c6f2bc9-47c9-4453-93a3-d2e174a02cd9", short_id="sid3", title="title3"
-    )
+    ) == Entity(id="7c6f2bc9-47c9-4453-93a3-d2e174a02cd9", short_id="sid3", title="title3")
 
     assert get_entity_by_key(
         [
-            Entity(
-                id="2da37c7a50a844d4aa2cfd401e19976c", short_id="sid1", title="title1"
-            ),
-            Entity(
-                id="c4f9356445074ee4b10298add401a965", short_id="sid2", title="title2"
-            ),
-            Entity(
-                id="7c6f2bc947c9445393a3d2e174a02cd9", short_id="sid3", title="title3"
-            ),
+            Entity(id="2da37c7a50a844d4aa2cfd401e19976c", short_id="sid1", title="title1"),
+            Entity(id="c4f9356445074ee4b10298add401a965", short_id="sid2", title="title2"),
+            Entity(id="7c6f2bc947c9445393a3d2e174a02cd9", short_id="sid3", title="title3"),
         ],
         "id",
         "7c6f2bc9-47c9-4453-93a3-d2e174a02cd9",

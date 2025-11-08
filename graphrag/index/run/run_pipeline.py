@@ -120,9 +120,7 @@ async def _run_pipeline(
             work_time = time.time()
             result = await workflow_function(config, context)
             context.callbacks.workflow_end(name, result)
-            yield PipelineRunResult(
-                workflow=name, result=result.result, state=context.state, errors=None
-            )
+            yield PipelineRunResult(workflow=name, result=result.result, state=context.state, errors=None)
             context.stats.workflows[name] = {"overall": time.time() - work_time}
             if result.stop:
                 logger.info("Halting pipeline at workflow request")
@@ -134,20 +132,14 @@ async def _run_pipeline(
 
     except Exception as e:
         logger.exception("error running workflow %s", last_workflow)
-        yield PipelineRunResult(
-            workflow=last_workflow, result=None, state=context.state, errors=[e]
-        )
+        yield PipelineRunResult(workflow=last_workflow, result=None, state=context.state, errors=[e])
 
 
 async def _dump_json(context: PipelineRunContext) -> None:
     """Dump the stats and context state to the storage."""
-    await context.output_storage.set(
-        "stats.json", json.dumps(asdict(context.stats), indent=4, ensure_ascii=False)
-    )
+    await context.output_storage.set("stats.json", json.dumps(asdict(context.stats), indent=4, ensure_ascii=False))
     # Dump context state, excluding additional_context
-    temp_context = context.state.pop(
-        "additional_context", None
-    )  # Remove reference only, as object size is uncertain
+    temp_context = context.state.pop("additional_context", None)  # Remove reference only, as object size is uncertain
     try:
         state_blob = json.dumps(context.state, indent=4, ensure_ascii=False)
     finally:

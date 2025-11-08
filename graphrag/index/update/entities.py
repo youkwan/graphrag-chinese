@@ -41,13 +41,9 @@ def _group_and_resolve_entities(
 
     # Increment human readable id in b by the max of a
     initial_id = old_entities_df["human_readable_id"].max() + 1
-    delta_entities_df["human_readable_id"] = np.arange(
-        initial_id, initial_id + len(delta_entities_df)
-    )
+    delta_entities_df["human_readable_id"] = np.arange(initial_id, initial_id + len(delta_entities_df))
     # Concat A and B
-    combined = pd.concat(
-        [old_entities_df, delta_entities_df], ignore_index=True, copy=False
-    )
+    combined = pd.concat([old_entities_df, delta_entities_df], ignore_index=True, copy=False)
 
     # Group by title and resolve conflicts
     aggregated = (

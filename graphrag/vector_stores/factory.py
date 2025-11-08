@@ -33,9 +33,7 @@ class VectorStoreFactory:
     _registry: ClassVar[dict[str, Callable[..., BaseVectorStore]]] = {}
 
     @classmethod
-    def register(
-        cls, vector_store_type: str, creator: Callable[..., BaseVectorStore]
-    ) -> None:
+    def register(cls, vector_store_type: str, creator: Callable[..., BaseVectorStore]) -> None:
         """Register a custom vector store implementation.
 
         Args:
@@ -73,9 +71,7 @@ class VectorStoreFactory:
             msg = f"Unknown vector store type: {vector_store_type}"
             raise ValueError(msg)
 
-        return cls._registry[vector_store_type](
-            vector_store_schema_config=vector_store_schema_config, **kwargs
-        )
+        return cls._registry[vector_store_type](vector_store_schema_config=vector_store_schema_config, **kwargs)
 
     @classmethod
     def get_vector_store_types(cls) -> list[str]:
@@ -90,7 +86,5 @@ class VectorStoreFactory:
 
 # --- register built-in vector store implementations ---
 VectorStoreFactory.register(VectorStoreType.LanceDB.value, LanceDBVectorStore)
-VectorStoreFactory.register(
-    VectorStoreType.AzureAISearch.value, AzureAISearchVectorStore
-)
+VectorStoreFactory.register(VectorStoreType.AzureAISearch.value, AzureAISearchVectorStore)
 VectorStoreFactory.register(VectorStoreType.CosmosDB.value, CosmosDBVectorStore)

@@ -28,13 +28,9 @@ async def run_workflow(
 ) -> WorkflowFunctionOutput:
     """Update the covariates from a incremental index run."""
     logger.info("Workflow started: update_covariates")
-    output_storage, previous_storage, delta_storage = get_update_storages(
-        config, context.state["update_timestamp"]
-    )
+    output_storage, previous_storage, delta_storage = get_update_storages(config, context.state["update_timestamp"])
 
-    if await storage_has_table(
-        "covariates", previous_storage
-    ) and await storage_has_table("covariates", delta_storage):
+    if await storage_has_table("covariates", previous_storage) and await storage_has_table("covariates", delta_storage):
         logger.info("Updating Covariates")
         await _update_covariates(previous_storage, delta_storage, output_storage)
 
@@ -55,9 +51,7 @@ async def _update_covariates(
     await write_table_to_storage(merged_covariates, "covariates", output_storage)
 
 
-def _merge_covariates(
-    old_covariates: pd.DataFrame, delta_covariates: pd.DataFrame
-) -> pd.DataFrame:
+def _merge_covariates(old_covariates: pd.DataFrame, delta_covariates: pd.DataFrame) -> pd.DataFrame:
     """Merge the covariates.
 
     Parameters
@@ -74,9 +68,7 @@ def _merge_covariates(
     """
     # Get the max human readable id from the old covariates and update the delta covariates
     initial_id = old_covariates["human_readable_id"].max() + 1
-    delta_covariates["human_readable_id"] = np.arange(
-        initial_id, initial_id + len(delta_covariates)
-    )
+    delta_covariates["human_readable_id"] = np.arange(initial_id, initial_id + len(delta_covariates))
 
     # Concatenate the old and delta covariates
     return pd.concat([old_covariates, delta_covariates], ignore_index=True, copy=False)

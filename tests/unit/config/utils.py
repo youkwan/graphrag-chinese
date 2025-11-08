@@ -65,9 +65,7 @@ def get_default_graphrag_config(root_dir: str | None = None) -> GraphRagConfig:
     })
 
 
-def assert_language_model_configs(
-    actual: LanguageModelConfig, expected: LanguageModelConfig
-) -> None:
+def assert_language_model_configs(actual: LanguageModelConfig, expected: LanguageModelConfig) -> None:
     assert actual.api_key == expected.api_key
     assert actual.auth_type == expected.auth_type
     assert actual.type == expected.type
@@ -112,9 +110,7 @@ def assert_vector_store_configs(
 ):
     assert type(actual) is type(expected)
     assert len(actual) == len(expected)
-    for (index_a, store_a), (index_e, store_e) in zip(
-        actual.items(), expected.items(), strict=True
-    ):
+    for (index_a, store_a), (index_e, store_e) in zip(actual.items(), expected.items(), strict=True):
         assert index_a == index_e
         assert store_a.type == store_e.type
         assert store_a.db_uri == store_e.db_uri
@@ -126,9 +122,7 @@ def assert_vector_store_configs(
         assert store_a.database_name == store_e.database_name
 
 
-def assert_reporting_configs(
-    actual: ReportingConfig, expected: ReportingConfig
-) -> None:
+def assert_reporting_configs(actual: ReportingConfig, expected: ReportingConfig) -> None:
     assert actual.type == expected.type
     assert actual.base_dir == expected.base_dir
     assert actual.connection_string == expected.connection_string
@@ -145,9 +139,7 @@ def assert_output_configs(actual: StorageConfig, expected: StorageConfig) -> Non
     assert expected.cosmosdb_account_url == actual.cosmosdb_account_url
 
 
-def assert_update_output_configs(
-    actual: StorageConfig, expected: StorageConfig
-) -> None:
+def assert_update_output_configs(actual: StorageConfig, expected: StorageConfig) -> None:
     assert expected.type == actual.type
     assert expected.base_dir == actual.base_dir
     assert expected.connection_string == actual.connection_string
@@ -170,10 +162,7 @@ def assert_input_configs(actual: InputConfig, expected: InputConfig) -> None:
     assert actual.file_type == expected.file_type
     assert actual.storage.base_dir == expected.storage.base_dir
     assert actual.storage.connection_string == expected.storage.connection_string
-    assert (
-        actual.storage.storage_account_blob_url
-        == expected.storage.storage_account_blob_url
-    )
+    assert actual.storage.storage_account_blob_url == expected.storage.storage_account_blob_url
     assert actual.storage.container_name == expected.storage.container_name
     assert actual.encoding == expected.encoding
     assert actual.file_pattern == expected.file_pattern
@@ -183,9 +172,7 @@ def assert_input_configs(actual: InputConfig, expected: InputConfig) -> None:
     assert actual.metadata == expected.metadata
 
 
-def assert_embed_graph_configs(
-    actual: EmbedGraphConfig, expected: EmbedGraphConfig
-) -> None:
+def assert_embed_graph_configs(actual: EmbedGraphConfig, expected: EmbedGraphConfig) -> None:
     assert actual.enabled == expected.enabled
     assert actual.dimensions == expected.dimensions
     assert actual.num_walks == expected.num_walks
@@ -196,9 +183,7 @@ def assert_embed_graph_configs(
     assert actual.use_lcc == expected.use_lcc
 
 
-def assert_text_embedding_configs(
-    actual: TextEmbeddingConfig, expected: TextEmbeddingConfig
-) -> None:
+def assert_text_embedding_configs(actual: TextEmbeddingConfig, expected: TextEmbeddingConfig) -> None:
     assert actual.batch_size == expected.batch_size
     assert actual.batch_max_tokens == expected.batch_max_tokens
     assert actual.names == expected.names
@@ -217,16 +202,12 @@ def assert_chunking_configs(actual: ChunkingConfig, expected: ChunkingConfig) ->
     assert actual.chunk_size_includes_metadata == expected.chunk_size_includes_metadata
 
 
-def assert_snapshots_configs(
-    actual: SnapshotsConfig, expected: SnapshotsConfig
-) -> None:
+def assert_snapshots_configs(actual: SnapshotsConfig, expected: SnapshotsConfig) -> None:
     assert actual.embeddings == expected.embeddings
     assert actual.graphml == expected.graphml
 
 
-def assert_extract_graph_configs(
-    actual: ExtractGraphConfig, expected: ExtractGraphConfig
-) -> None:
+def assert_extract_graph_configs(actual: ExtractGraphConfig, expected: ExtractGraphConfig) -> None:
     assert actual.prompt == expected.prompt
     assert actual.entity_types == expected.entity_types
     assert actual.max_gleanings == expected.max_gleanings
@@ -234,9 +215,7 @@ def assert_extract_graph_configs(
     assert actual.model_id == expected.model_id
 
 
-def assert_text_analyzer_configs(
-    actual: TextAnalyzerConfig, expected: TextAnalyzerConfig
-) -> None:
+def assert_text_analyzer_configs(actual: TextAnalyzerConfig, expected: TextAnalyzerConfig) -> None:
     assert actual.extractor_type == expected.extractor_type
     assert actual.model_name == expected.model_name
     assert actual.max_word_length == expected.max_word_length
@@ -249,17 +228,13 @@ def assert_text_analyzer_configs(
     assert actual.noun_phrase_grammars == expected.noun_phrase_grammars
 
 
-def assert_extract_graph_nlp_configs(
-    actual: ExtractGraphNLPConfig, expected: ExtractGraphNLPConfig
-) -> None:
+def assert_extract_graph_nlp_configs(actual: ExtractGraphNLPConfig, expected: ExtractGraphNLPConfig) -> None:
     assert actual.normalize_edge_weights == expected.normalize_edge_weights
     assert_text_analyzer_configs(actual.text_analyzer, expected.text_analyzer)
     assert actual.concurrent_requests == expected.concurrent_requests
 
 
-def assert_prune_graph_configs(
-    actual: PruneGraphConfig, expected: PruneGraphConfig
-) -> None:
+def assert_prune_graph_configs(actual: PruneGraphConfig, expected: PruneGraphConfig) -> None:
     assert actual.min_node_freq == expected.min_node_freq
     assert actual.max_node_freq_std == expected.max_node_freq_std
     assert actual.min_node_degree == expected.min_node_degree
@@ -278,9 +253,7 @@ def assert_summarize_descriptions_configs(
     assert actual.model_id == expected.model_id
 
 
-def assert_community_reports_configs(
-    actual: CommunityReportsConfig, expected: CommunityReportsConfig
-) -> None:
+def assert_community_reports_configs(actual: CommunityReportsConfig, expected: CommunityReportsConfig) -> None:
     assert actual.graph_prompt == expected.graph_prompt
     assert actual.text_prompt == expected.text_prompt
     assert actual.max_length == expected.max_length
@@ -289,9 +262,7 @@ def assert_community_reports_configs(
     assert actual.model_id == expected.model_id
 
 
-def assert_extract_claims_configs(
-    actual: ClaimExtractionConfig, expected: ClaimExtractionConfig
-) -> None:
+def assert_extract_claims_configs(actual: ClaimExtractionConfig, expected: ClaimExtractionConfig) -> None:
     assert actual.enabled == expected.enabled
     assert actual.prompt == expected.prompt
     assert actual.description == expected.description
@@ -300,9 +271,7 @@ def assert_extract_claims_configs(
     assert actual.model_id == expected.model_id
 
 
-def assert_cluster_graph_configs(
-    actual: ClusterGraphConfig, expected: ClusterGraphConfig
-) -> None:
+def assert_cluster_graph_configs(actual: ClusterGraphConfig, expected: ClusterGraphConfig) -> None:
     assert actual.max_cluster_size == expected.max_cluster_size
     assert actual.use_lcc == expected.use_lcc
     assert actual.seed == expected.seed
@@ -312,23 +281,17 @@ def assert_umap_configs(actual: UmapConfig, expected: UmapConfig) -> None:
     assert actual.enabled == expected.enabled
 
 
-def assert_local_search_configs(
-    actual: LocalSearchConfig, expected: LocalSearchConfig
-) -> None:
+def assert_local_search_configs(actual: LocalSearchConfig, expected: LocalSearchConfig) -> None:
     assert actual.prompt == expected.prompt
     assert actual.text_unit_prop == expected.text_unit_prop
     assert actual.community_prop == expected.community_prop
-    assert (
-        actual.conversation_history_max_turns == expected.conversation_history_max_turns
-    )
+    assert actual.conversation_history_max_turns == expected.conversation_history_max_turns
     assert actual.top_k_entities == expected.top_k_entities
     assert actual.top_k_relationships == expected.top_k_relationships
     assert actual.max_context_tokens == expected.max_context_tokens
 
 
-def assert_global_search_configs(
-    actual: GlobalSearchConfig, expected: GlobalSearchConfig
-) -> None:
+def assert_global_search_configs(actual: GlobalSearchConfig, expected: GlobalSearchConfig) -> None:
     assert actual.map_prompt == expected.map_prompt
     assert actual.reduce_prompt == expected.reduce_prompt
     assert actual.knowledge_prompt == expected.knowledge_prompt
@@ -343,9 +306,7 @@ def assert_global_search_configs(
     assert actual.dynamic_search_max_level == expected.dynamic_search_max_level
 
 
-def assert_drift_search_configs(
-    actual: DRIFTSearchConfig, expected: DRIFTSearchConfig
-) -> None:
+def assert_drift_search_configs(actual: DRIFTSearchConfig, expected: DRIFTSearchConfig) -> None:
     assert actual.prompt == expected.prompt
     assert actual.reduce_prompt == expected.reduce_prompt
     assert actual.data_max_tokens == expected.data_max_tokens
@@ -358,27 +319,16 @@ def assert_drift_search_configs(
     assert actual.n_depth == expected.n_depth
     assert actual.local_search_text_unit_prop == expected.local_search_text_unit_prop
     assert actual.local_search_community_prop == expected.local_search_community_prop
-    assert (
-        actual.local_search_top_k_mapped_entities
-        == expected.local_search_top_k_mapped_entities
-    )
-    assert (
-        actual.local_search_top_k_relationships
-        == expected.local_search_top_k_relationships
-    )
+    assert actual.local_search_top_k_mapped_entities == expected.local_search_top_k_mapped_entities
+    assert actual.local_search_top_k_relationships == expected.local_search_top_k_relationships
     assert actual.local_search_max_data_tokens == expected.local_search_max_data_tokens
     assert actual.local_search_temperature == expected.local_search_temperature
     assert actual.local_search_top_p == expected.local_search_top_p
     assert actual.local_search_n == expected.local_search_n
-    assert (
-        actual.local_search_llm_max_gen_tokens
-        == expected.local_search_llm_max_gen_tokens
-    )
+    assert actual.local_search_llm_max_gen_tokens == expected.local_search_llm_max_gen_tokens
 
 
-def assert_basic_search_configs(
-    actual: BasicSearchConfig, expected: BasicSearchConfig
-) -> None:
+def assert_basic_search_configs(actual: BasicSearchConfig, expected: BasicSearchConfig) -> None:
     assert actual.prompt == expected.prompt
     assert actual.k == expected.k
 
@@ -405,9 +355,7 @@ def assert_graphrag_configs(actual: GraphRagConfig, expected: GraphRagConfig) ->
     else:
         assert actual.outputs is None
 
-    assert_update_output_configs(
-        actual.update_index_output, expected.update_index_output
-    )
+    assert_update_output_configs(actual.update_index_output, expected.update_index_output)
 
     assert_cache_configs(actual.cache, expected.cache)
     assert_input_configs(actual.input, expected.input)
@@ -416,15 +364,9 @@ def assert_graphrag_configs(actual: GraphRagConfig, expected: GraphRagConfig) ->
     assert_chunking_configs(actual.chunks, expected.chunks)
     assert_snapshots_configs(actual.snapshots, expected.snapshots)
     assert_extract_graph_configs(actual.extract_graph, expected.extract_graph)
-    assert_extract_graph_nlp_configs(
-        actual.extract_graph_nlp, expected.extract_graph_nlp
-    )
-    assert_summarize_descriptions_configs(
-        actual.summarize_descriptions, expected.summarize_descriptions
-    )
-    assert_community_reports_configs(
-        actual.community_reports, expected.community_reports
-    )
+    assert_extract_graph_nlp_configs(actual.extract_graph_nlp, expected.extract_graph_nlp)
+    assert_summarize_descriptions_configs(actual.summarize_descriptions, expected.summarize_descriptions)
+    assert_community_reports_configs(actual.community_reports, expected.community_reports)
     assert_extract_claims_configs(actual.extract_claims, expected.extract_claims)
     assert_prune_graph_configs(actual.prune_graph, expected.prune_graph)
     assert_cluster_graph_configs(actual.cluster_graph, expected.cluster_graph)

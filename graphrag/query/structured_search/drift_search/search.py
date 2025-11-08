@@ -107,9 +107,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
             callbacks=self.callbacks,
         )
 
-    def _process_primer_results(
-        self, query: str, search_results: SearchResult
-    ) -> DriftAction:
+    def _process_primer_results(self, query: str, search_results: SearchResult) -> DriftAction:
         """
         Process the results from the primer search to extract intermediate answers and follow-up queries.
 
@@ -127,9 +125,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
         """
         response = search_results.response
         if isinstance(response, list) and isinstance(response[0], dict):
-            intermediate_answers = [
-                i["intermediate_answer"] for i in response if "intermediate_answer" in i
-            ]
+            intermediate_answers = [i["intermediate_answer"] for i in response if "intermediate_answer" in i]
 
             if not intermediate_answers:
                 error_msg = "No intermediate answers found in primer response. Ensure that the primer response includes intermediate answers."
@@ -170,10 +166,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
         -------
         list[DriftAction]: The results from executing the search actions asynchronously.
         """
-        tasks = [
-            action.search(search_engine=search_engine, global_query=global_query)
-            for action in actions
-        ]
+        tasks = [action.search(search_engine=search_engine, global_query=global_query) for action in actions]
         return await tqdm_asyncio.gather(*tasks, leave=False)
 
     async def search(
@@ -215,9 +208,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
             prompt_tokens["build_context"] = token_ct["prompt_tokens"]
             output_tokens["build_context"] = token_ct["output_tokens"]
 
-            primer_response = await self.primer.search(
-                query=query, top_k_reports=primer_context
-            )
+            primer_response = await self.primer.search(query=query, top_k_reports=primer_context)
             llm_calls["primer"] = primer_response.llm_calls
             prompt_tokens["primer"] = primer_response.prompt_tokens
             output_tokens["primer"] = primer_response.output_tokens
@@ -236,13 +227,9 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
                 logger.debug("No more actions to take. Exiting DRIFT loop.")
                 break
             actions = actions[: self.context_builder.config.drift_k_followups]
-            llm_call_offset += (
-                len(actions) - self.context_builder.config.drift_k_followups
-            )
+            llm_call_offset += len(actions) - self.context_builder.config.drift_k_followups
             # Process actions
-            results = await self._search_step(
-                global_query=query, search_engine=self.local_search, actions=actions
-            )
+            results = await self._search_step(global_query=query, search_engine=self.local_search, actions=actions)
 
             # Update query state
             for action in results:
@@ -259,9 +246,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
         output_tokens["action"] = token_ct["output_tokens"]
 
         # Package up context data
-        response_state, context_data, context_text = self.query_state.serialize(
-            include_context=True
-        )
+        response_state, context_data, context_text = self.query_state.serialize(include_context=True)
 
         reduced_response = response_state
         if reduce:
@@ -310,9 +295,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
             query (str): The query to search for.
             conversation_history (ConversationHistory, optional): The conversation history.
         """
-        result = await self.search(
-            query=query, conversation_history=conversation_history, reduce=False
-        )
+        result = await self.search(query=query, conversation_history=conversation_history, reduce=False)
 
         if isinstance(result.response, list):
             result.response = result.response[0]
@@ -369,11 +352,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
         if isinstance(responses, str):
             reduce_responses = [responses]
         else:
-            reduce_responses = [
-                response["answer"]
-                for response in responses.get("nodes", [])
-                if response.get("answer")
-            ]
+            reduce_responses = [response["answer"] for response in responses.get("nodes", []) if response.get("answer")]
 
         search_prompt = self.context_builder.reduce_system_prompt.format(
             context_data=reduce_responses,
@@ -392,9 +371,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
         reduced_response = model_response.output.content
 
         llm_calls["reduce"] = 1
-        prompt_tokens["reduce"] = len(self.tokenizer.encode(search_prompt)) + len(
-            self.tokenizer.encode(query)
-        )
+        prompt_tokens["reduce"] = len(self.tokenizer.encode(search_prompt)) + len(self.tokenizer.encode(query))
         output_tokens["reduce"] = len(self.tokenizer.encode(reduced_response))
 
         return reduced_response
@@ -424,11 +401,7 @@ class DRIFTSearch(BaseSearch[DRIFTSearchContextBuilder]):
         if isinstance(responses, str):
             reduce_responses = [responses]
         else:
-            reduce_responses = [
-                response["answer"]
-                for response in responses.get("nodes", [])
-                if response.get("answer")
-            ]
+            reduce_responses = [response["answer"] for response in responses.get("nodes", []) if response.get("answer")]
 
         search_prompt = self.context_builder.reduce_system_prompt.format(
             context_data=reduce_responses,

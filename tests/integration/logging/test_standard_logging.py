@@ -45,9 +45,7 @@ def test_init_loggers_file_config():
         logger = logging.getLogger("graphrag")
 
         # should have a file handler
-        file_handlers = [
-            h for h in logger.handlers if isinstance(h, logging.FileHandler)
-        ]
+        file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
         assert len(file_handlers) > 0
 
         # test that logging works

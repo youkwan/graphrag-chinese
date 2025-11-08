@@ -56,13 +56,9 @@ class CFGNounPhraseExtractor(BaseNounPhraseExtractor):
         self.include_named_entities = include_named_entities
         self.exclude_entity_tags = exclude_entity_tags
         if not include_named_entities:
-            self.nlp = self.load_spacy_model(
-                model_name, exclude=["lemmatizer", "parser", "ner"]
-            )
+            self.nlp = self.load_spacy_model(model_name, exclude=["lemmatizer", "parser", "ner"])
         else:
-            self.nlp = self.load_spacy_model(
-                model_name, exclude=["lemmatizer", "parser"]
-            )
+            self.nlp = self.load_spacy_model(model_name, exclude=["lemmatizer", "parser"])
 
         self.exclude_pos_tags = exclude_pos_tags
         self.noun_phrase_grammars = noun_phrase_grammars
@@ -85,27 +81,16 @@ class CFGNounPhraseExtractor(BaseNounPhraseExtractor):
         filtered_noun_phrases = set()
         if self.include_named_entities:
             # extract noun chunks + entities then filter overlapping spans
-            entities = [
-                (ent.text, ent.label_)
-                for ent in doc.ents
-                if ent.label_ not in self.exclude_entity_tags
-            ]
+            entities = [(ent.text, ent.label_) for ent in doc.ents if ent.label_ not in self.exclude_entity_tags]
             entity_texts = set({ent[0] for ent in entities})
             cfg_matches = self.extract_cfg_matches(doc)
-            noun_phrases = entities + [
-                np for np in cfg_matches if np[0] not in entity_texts
-            ]
+            noun_phrases = entities + [np for np in cfg_matches if np[0] not in entity_texts]
 
             # filter noun phrases based on heuristics
-            tagged_noun_phrases = [
-                self._tag_noun_phrases(np, entity_texts) for np in noun_phrases
-            ]
+            tagged_noun_phrases = [self._tag_noun_phrases(np, entity_texts) for np in noun_phrases]
             for tagged_np in tagged_noun_phrases:
                 if (tagged_np["is_valid_entity"]) or (
-                    (
-                        len(tagged_np["cleaned_tokens"]) > 1
-                        or tagged_np["has_compound_words"]
-                    )
+                    (len(tagged_np["cleaned_tokens"]) > 1 or tagged_np["has_compound_words"])
                     and tagged_np["has_valid_tokens"]
                 ):
                     filtered_noun_phrases.add(tagged_np["cleaned_text"])
@@ -114,10 +99,7 @@ class CFGNounPhraseExtractor(BaseNounPhraseExtractor):
             tagged_noun_phrases = [self._tag_noun_phrases(np) for np in noun_phrases]
             for tagged_np in tagged_noun_phrases:
                 if (tagged_np["has_proper_nouns"]) or (
-                    (
-                        len(tagged_np["cleaned_tokens"]) > 1
-                        or tagged_np["has_compound_words"]
-                    )
+                    (len(tagged_np["cleaned_tokens"]) > 1 or tagged_np["has_compound_words"])
                     and tagged_np["has_valid_tokens"]
                 ):
                     filtered_noun_phrases.add(tagged_np["cleaned_text"])
@@ -128,9 +110,7 @@ class CFGNounPhraseExtractor(BaseNounPhraseExtractor):
         tagged_tokens = [
             (token.text, token.pos_)
             for token in doc
-            if token.pos_ not in self.exclude_pos_tags
-            and token.is_space is False
-            and token.text != "-"
+            if token.pos_ not in self.exclude_pos_tags and token.is_space is False and token.text != "-"
         ]
         merge = True
         while merge:
@@ -150,14 +130,10 @@ class CFGNounPhraseExtractor(BaseNounPhraseExtractor):
                     break
         return [t for t in tagged_tokens if t[1] in self.noun_phrase_tags]
 
-    def _tag_noun_phrases(
-        self, noun_chunk: tuple[str, str], entities: set[str] | None = None
-    ) -> dict[str, Any]:
+    def _tag_noun_phrases(self, noun_chunk: tuple[str, str], entities: set[str] | None = None) -> dict[str, Any]:
         """Extract attributes of a noun chunk, to be used for filtering."""
         tokens = noun_chunk[0].split(self.word_delimiter)
-        cleaned_tokens = [
-            token for token in tokens if token.upper() not in self.exclude_nouns
-        ]
+        cleaned_tokens = [token for token in tokens if token.upper() not in self.exclude_nouns]
 
         has_valid_entity = False
         if entities and noun_chunk[0] in entities:
@@ -165,15 +141,11 @@ class CFGNounPhraseExtractor(BaseNounPhraseExtractor):
 
         return {
             "cleaned_tokens": cleaned_tokens,
-            "cleaned_text": self.word_delimiter.join(cleaned_tokens)
-            .replace("\n", "")
-            .upper(),
+            "cleaned_text": self.word_delimiter.join(cleaned_tokens).replace("\n", "").upper(),
             "is_valid_entity": has_valid_entity,
             "has_proper_nouns": (noun_chunk[1] == "PROPN"),
             "has_compound_words": is_compound(cleaned_tokens),
-            "has_valid_tokens": has_valid_token_length(
-                cleaned_tokens, self.max_word_length
-            ),
+            "has_valid_tokens": has_valid_token_length(cleaned_tokens, self.max_word_length),
         }
 
     def __str__(self) -> str:

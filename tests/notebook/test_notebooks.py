@@ -9,11 +9,7 @@ import pytest
 NOTEBOOKS_PATH = Path("examples_notebooks")
 EXCLUDED_PATH = NOTEBOOKS_PATH / "community_contrib"
 
-notebooks_list = [
-    notebook
-    for notebook in NOTEBOOKS_PATH.rglob("*.ipynb")
-    if EXCLUDED_PATH not in notebook.parents
-]
+notebooks_list = [notebook for notebook in NOTEBOOKS_PATH.rglob("*.ipynb") if EXCLUDED_PATH not in notebook.parents]
 
 
 def _notebook_run(filepath: Path):
@@ -35,11 +31,7 @@ def _notebook_run(filepath: Path):
     nb = nbformat.reads(notebook, nbformat.current_nbformat)
 
     return [
-        output
-        for cell in nb.cells
-        if "outputs" in cell
-        for output in cell["outputs"]
-        if output.output_type == "error"
+        output for cell in nb.cells if "outputs" in cell for output in cell["outputs"] if output.output_type == "error"
     ]
 
 

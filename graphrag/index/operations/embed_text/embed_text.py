@@ -51,12 +51,8 @@ async def embed_text(
 
     if vector_store_config:
         index_name = _get_index_name(vector_store_config, embedding_name)
-        vector_store: BaseVectorStore = _create_vector_store(
-            vector_store_config, index_name, embedding_name
-        )
-        vector_store_workflow_config = vector_store_config.get(
-            embedding_name, vector_store_config
-        )
+        vector_store: BaseVectorStore = _create_vector_store(vector_store_config, index_name, embedding_name)
+        vector_store_workflow_config = vector_store_config.get(embedding_name, vector_store_config)
         return await _text_embed_with_vector_store(
             input=input,
             callbacks=callbacks,
@@ -111,9 +107,7 @@ async def _text_embed_with_vector_store(
     strategy_config = {**strategy}
 
     # Get vector-storage configuration
-    insert_batch_size: int = (
-        vector_store_config.get("batch_size") or DEFAULT_EMBEDDING_BATCH_SIZE
-    )
+    insert_batch_size: int = vector_store_config.get("batch_size") or DEFAULT_EMBEDDING_BATCH_SIZE
 
     overwrite: bool = vector_store_config.get("overwrite", True)
 
@@ -122,9 +116,7 @@ async def _text_embed_with_vector_store(
         raise ValueError(msg)
     title = title_column or embed_column
     if title not in input.columns:
-        msg = (
-            f"Column {title} not found in input dataframe with columns {input.columns}"
-        )
+        msg = f"Column {title} not found in input dataframe with columns {input.columns}"
         raise ValueError(msg)
     if id_column not in input.columns:
         msg = f"Column {id_column} not found in input dataframe with columns {input.columns}"
@@ -156,16 +148,12 @@ async def _text_embed_with_vector_store(
         ids: list[str] = batch[id_column].to_numpy().tolist()
         result = await strategy_exec(texts, callbacks, cache, strategy_config)
         if result.embeddings:
-            embeddings = [
-                embedding for embedding in result.embeddings if embedding is not None
-            ]
+            embeddings = [embedding for embedding in result.embeddings if embedding is not None]
             all_results.extend(embeddings)
 
         vectors = result.embeddings or []
         documents: list[VectorStoreDocument] = []
-        for doc_id, doc_text, doc_title, doc_vector in zip(
-            ids, texts, titles, vectors, strict=True
-        ):
+        for doc_id, doc_text, doc_title, doc_vector in zip(ids, texts, titles, vectors, strict=True):
             if type(doc_vector) is np.ndarray:
                 doc_vector = doc_vector.tolist()
             document = VectorStoreDocument(
@@ -188,16 +176,10 @@ def _create_vector_store(
 ) -> BaseVectorStore:
     vector_store_type: str = str(vector_store_config.get("type"))
 
-    embeddings_schema: dict[str, VectorStoreSchemaConfig] = vector_store_config.get(
-        "embeddings_schema", {}
-    )
+    embeddings_schema: dict[str, VectorStoreSchemaConfig] = vector_store_config.get("embeddings_schema", {})
     single_embedding_config: VectorStoreSchemaConfig = VectorStoreSchemaConfig()
 
-    if (
-        embeddings_schema is not None
-        and embedding_name is not None
-        and embedding_name in embeddings_schema
-    ):
+    if embeddings_schema is not None and embedding_name is not None and embedding_name in embeddings_schema:
         raw_config = embeddings_schema[embedding_name]
         if isinstance(raw_config, dict):
             single_embedding_config = VectorStoreSchemaConfig(**raw_config)

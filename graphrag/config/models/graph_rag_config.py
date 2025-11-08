@@ -121,24 +121,12 @@ class GraphRagConfig(BaseModel):
                     msg = f"Rate Limiter strategy '{model.rate_limit_strategy}' for model '{model_id}' is not registered. Available strategies: {', '.join(rate_limiter_factory.keys())}"
                     raise ValueError(msg)
 
-                rpm = (
-                    model.requests_per_minute
-                    if type(model.requests_per_minute) is int
-                    else None
-                )
-                tpm = (
-                    model.tokens_per_minute
-                    if type(model.tokens_per_minute) is int
-                    else None
-                )
+                rpm = model.requests_per_minute if type(model.requests_per_minute) is int else None
+                tpm = model.tokens_per_minute if type(model.tokens_per_minute) is int else None
                 if rpm is not None or tpm is not None:
-                    _ = rate_limiter_factory.create(
-                        strategy=model.rate_limit_strategy, rpm=rpm, tpm=tpm
-                    )
+                    _ = rate_limiter_factory.create(strategy=model.rate_limit_strategy, rpm=rpm, tpm=tpm)
 
-    input: InputConfig = Field(
-        description="The input configuration.", default=InputConfig()
-    )
+    input: InputConfig = Field(description="The input configuration.", default=InputConfig())
     """The input configuration."""
 
     def _validate_input_pattern(self) -> None:
@@ -155,9 +143,7 @@ class GraphRagConfig(BaseModel):
             if self.input.storage.base_dir.strip() == "":
                 msg = "input storage base directory is required for file input storage. Please rerun `graphrag init` and set the input storage configuration."
                 raise ValueError(msg)
-            self.input.storage.base_dir = str(
-                (Path(self.root_dir) / self.input.storage.base_dir).resolve()
-            )
+            self.input.storage.base_dir = str((Path(self.root_dir) / self.input.storage.base_dir).resolve())
 
     chunks: ChunkingConfig = Field(
         description="The chunking configuration to use.",
@@ -177,9 +163,7 @@ class GraphRagConfig(BaseModel):
             if self.output.base_dir.strip() == "":
                 msg = "output base directory is required for file output. Please rerun `graphrag init` and set the output configuration."
                 raise ValueError(msg)
-            self.output.base_dir = str(
-                (Path(self.root_dir) / self.output.base_dir).resolve()
-            )
+            self.output.base_dir = str((Path(self.root_dir) / self.output.base_dir).resolve())
 
     outputs: dict[str, StorageConfig] | None = Field(
         description="A list of output configurations used for multi-index query.",
@@ -194,9 +178,7 @@ class GraphRagConfig(BaseModel):
                     if output.base_dir.strip() == "":
                         msg = "Output base directory is required for file output. Please rerun `graphrag init` and set the output configuration."
                         raise ValueError(msg)
-                    output.base_dir = str(
-                        (Path(self.root_dir) / output.base_dir).resolve()
-                    )
+                    output.base_dir = str((Path(self.root_dir) / output.base_dir).resolve())
 
     update_index_output: StorageConfig = Field(
         description="The output configuration for the updated index.",
@@ -212,18 +194,12 @@ class GraphRagConfig(BaseModel):
             if self.update_index_output.base_dir.strip() == "":
                 msg = "update_index_output base directory is required for file output. Please rerun `graphrag init` and set the update_index_output configuration."
                 raise ValueError(msg)
-            self.update_index_output.base_dir = str(
-                (Path(self.root_dir) / self.update_index_output.base_dir).resolve()
-            )
+            self.update_index_output.base_dir = str((Path(self.root_dir) / self.update_index_output.base_dir).resolve())
 
-    cache: CacheConfig = Field(
-        description="The cache configuration.", default=CacheConfig()
-    )
+    cache: CacheConfig = Field(description="The cache configuration.", default=CacheConfig())
     """The cache configuration."""
 
-    reporting: ReportingConfig = Field(
-        description="The reporting configuration.", default=ReportingConfig()
-    )
+    reporting: ReportingConfig = Field(description="The reporting configuration.", default=ReportingConfig())
     """The reporting configuration."""
 
     def _validate_reporting_base_dir(self) -> None:
@@ -232,15 +208,12 @@ class GraphRagConfig(BaseModel):
             if self.reporting.base_dir.strip() == "":
                 msg = "Reporting base directory is required for file reporting. Please rerun `graphrag init` and set the reporting configuration."
                 raise ValueError(msg)
-            self.reporting.base_dir = str(
-                (Path(self.root_dir) / self.reporting.base_dir).resolve()
-            )
+            self.reporting.base_dir = str((Path(self.root_dir) / self.reporting.base_dir).resolve())
 
     vector_store: dict[str, VectorStoreConfig] = Field(
         description="The vector store configuration.",
         default_factory=lambda: {
-            k: VectorStoreConfig(**asdict(v))
-            for k, v in graphrag_config_defaults.vector_store.items()
+            k: VectorStoreConfig(**asdict(v)) for k, v in graphrag_config_defaults.vector_store.items()
         },
     )
     """The vector store configuration."""
@@ -307,9 +280,7 @@ class GraphRagConfig(BaseModel):
     )
     """Graph Embedding configuration."""
 
-    umap: UmapConfig = Field(
-        description="The UMAP configuration to use.", default=UmapConfig()
-    )
+    umap: UmapConfig = Field(description="The UMAP configuration to use.", default=UmapConfig())
     """The UMAP configuration to use."""
 
     snapshots: SnapshotsConfig = Field(
@@ -318,9 +289,7 @@ class GraphRagConfig(BaseModel):
     )
     """The snapshots configuration to use."""
 
-    local_search: LocalSearchConfig = Field(
-        description="The local search configuration.", default=LocalSearchConfig()
-    )
+    local_search: LocalSearchConfig = Field(description="The local search configuration.", default=LocalSearchConfig())
     """The local search configuration."""
 
     global_search: GlobalSearchConfig = Field(
@@ -328,14 +297,10 @@ class GraphRagConfig(BaseModel):
     )
     """The global search configuration."""
 
-    drift_search: DRIFTSearchConfig = Field(
-        description="The drift search configuration.", default=DRIFTSearchConfig()
-    )
+    drift_search: DRIFTSearchConfig = Field(description="The drift search configuration.", default=DRIFTSearchConfig())
     """The drift search configuration."""
 
-    basic_search: BasicSearchConfig = Field(
-        description="The basic search configuration.", default=BasicSearchConfig()
-    )
+    basic_search: BasicSearchConfig = Field(description="The basic search configuration.", default=BasicSearchConfig())
     """The basic search configuration."""
 
     def _validate_vector_store_db_uri(self) -> None:

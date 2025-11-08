@@ -22,16 +22,10 @@ def prep_text_units(
     Returns : dataframe with columns [COMMUNITY_ID, TEXT_UNIT_ID, ALL_DETAILS]
     """
     node_df.drop(columns=["id"], inplace=True)
-    node_to_text_ids = node_df.explode(schemas.TEXT_UNIT_IDS).rename(
-        columns={schemas.TEXT_UNIT_IDS: schemas.ID}
-    )
-    node_to_text_ids = node_to_text_ids[
-        [schemas.TITLE, schemas.COMMUNITY_ID, schemas.NODE_DEGREE, schemas.ID]
-    ]
+    node_to_text_ids = node_df.explode(schemas.TEXT_UNIT_IDS).rename(columns={schemas.TEXT_UNIT_IDS: schemas.ID})
+    node_to_text_ids = node_to_text_ids[[schemas.TITLE, schemas.COMMUNITY_ID, schemas.NODE_DEGREE, schemas.ID]]
     text_unit_degrees = (
-        node_to_text_ids.groupby([schemas.COMMUNITY_ID, schemas.ID])
-        .agg({schemas.NODE_DEGREE: "sum"})
-        .reset_index()
+        node_to_text_ids.groupby([schemas.COMMUNITY_ID, schemas.ID]).agg({schemas.NODE_DEGREE: "sum"}).reset_index()
     )
     result_df = text_unit_df.merge(text_unit_degrees, on=schemas.ID, how="left")
     result_df[schemas.ALL_DETAILS] = result_df.apply(

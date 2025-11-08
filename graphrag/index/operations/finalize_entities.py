@@ -45,9 +45,7 @@ def finalize_entities(
     final_entities["degree"] = final_entities["degree"].fillna(0).astype(int)
     final_entities.reset_index(inplace=True)
     final_entities["human_readable_id"] = final_entities.index
-    final_entities["id"] = final_entities["human_readable_id"].apply(
-        lambda _x: str(uuid4())
-    )
+    final_entities["id"] = final_entities["human_readable_id"].apply(lambda _x: str(uuid4()))
     return final_entities.loc[
         :,
         ENTITIES_FINAL_COLUMNS,

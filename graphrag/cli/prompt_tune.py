@@ -102,9 +102,7 @@ async def prompt_tune(
         output_path.mkdir(parents=True, exist_ok=True)
         extract_graph_prompt_path = output_path / EXTRACT_GRAPH_FILENAME
         entity_summarization_prompt_path = output_path / ENTITY_SUMMARIZATION_FILENAME
-        community_summarization_prompt_path = (
-            output_path / COMMUNITY_SUMMARIZATION_FILENAME
-        )
+        community_summarization_prompt_path = output_path / COMMUNITY_SUMMARIZATION_FILENAME
         # write files to output path
         with extract_graph_prompt_path.open("wb") as file:
             file.write(prompts[0].encode(encoding="utf-8", errors="strict"))

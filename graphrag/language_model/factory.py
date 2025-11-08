@@ -32,9 +32,7 @@ class ModelFactory:
         cls._chat_registry[model_type] = creator
 
     @classmethod
-    def register_embedding(
-        cls, model_type: str, creator: Callable[..., EmbeddingModel]
-    ) -> None:
+    def register_embedding(cls, model_type: str, creator: Callable[..., EmbeddingModel]) -> None:
         """Register an EmbeddingModel implementation."""
         cls._embedding_registry[model_type] = creator
 
@@ -97,27 +95,17 @@ class ModelFactory:
     @classmethod
     def is_supported_model(cls, model_type: str) -> bool:
         """Check if the given model type is supported."""
-        return cls.is_supported_chat_model(
-            model_type
-        ) or cls.is_supported_embedding_model(model_type)
+        return cls.is_supported_chat_model(model_type) or cls.is_supported_embedding_model(model_type)
 
 
 # --- Register default implementations ---
-ModelFactory.register_chat(
-    ModelType.AzureOpenAIChat.value, lambda **kwargs: AzureOpenAIChatFNLLM(**kwargs)
-)
-ModelFactory.register_chat(
-    ModelType.OpenAIChat.value, lambda **kwargs: OpenAIChatFNLLM(**kwargs)
-)
+ModelFactory.register_chat(ModelType.AzureOpenAIChat.value, lambda **kwargs: AzureOpenAIChatFNLLM(**kwargs))
+ModelFactory.register_chat(ModelType.OpenAIChat.value, lambda **kwargs: OpenAIChatFNLLM(**kwargs))
 ModelFactory.register_chat(ModelType.Chat, lambda **kwargs: LitellmChatModel(**kwargs))
 
 ModelFactory.register_embedding(
     ModelType.AzureOpenAIEmbedding.value,
     lambda **kwargs: AzureOpenAIEmbeddingFNLLM(**kwargs),
 )
-ModelFactory.register_embedding(
-    ModelType.OpenAIEmbedding.value, lambda **kwargs: OpenAIEmbeddingFNLLM(**kwargs)
-)
-ModelFactory.register_embedding(
-    ModelType.Embedding, lambda **kwargs: LitellmEmbeddingModel(**kwargs)
-)
+ModelFactory.register_embedding(ModelType.OpenAIEmbedding.value, lambda **kwargs: OpenAIEmbeddingFNLLM(**kwargs))
+ModelFactory.register_embedding(ModelType.Embedding, lambda **kwargs: LitellmEmbeddingModel(**kwargs))

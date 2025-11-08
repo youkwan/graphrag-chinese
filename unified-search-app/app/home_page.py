@@ -24,9 +24,7 @@ async def main():
 
     create_side_bar(sv)
 
-    st.markdown(
-        "#### GraphRAG: A Novel Knowledge Graph-based Approach to Retrieval Augmented Generation (RAG)"
-    )
+    st.markdown("#### GraphRAG: A Novel Knowledge Graph-based Approach to Retrieval Augmented Generation (RAG)")
     st.markdown("##### Dataset selected: " + dataset_name(sv.dataset.value, sv))
     st.markdown(sv.dataset_config.value.description)
 
@@ -246,9 +244,7 @@ async def main():
         with graph:
             title, dropdown = st.columns([0.80, 0.20])
             title.markdown("##### Entity Graph (All entities)")
-            dropdown.selectbox(
-                "Community level", options=[0, 1], key=sv.graph_community_level.key
-            )
+            dropdown.selectbox("Community level", options=[0, 1], key=sv.graph_community_level.key)
             create_full_graph_ui(sv)
 
         with report_content:

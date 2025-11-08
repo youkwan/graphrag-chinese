@@ -26,9 +26,7 @@ async def run_workflow(
     """All the steps to create the base entity graph."""
     logger.info("Workflow started: prune_graph")
     entities = await load_table_from_storage("entities", context.output_storage)
-    relationships = await load_table_from_storage(
-        "relationships", context.output_storage
-    )
+    relationships = await load_table_from_storage("relationships", context.output_storage)
 
     pruned_entities, pruned_relationships = prune_graph(
         entities,
@@ -37,9 +35,7 @@ async def run_workflow(
     )
 
     await write_table_to_storage(pruned_entities, "entities", context.output_storage)
-    await write_table_to_storage(
-        pruned_relationships, "relationships", context.output_storage
-    )
+    await write_table_to_storage(pruned_relationships, "relationships", context.output_storage)
 
     logger.info("Workflow completed: prune_graph")
     return WorkflowFunctionOutput(
@@ -69,14 +65,10 @@ def prune_graph(
         lcc_only=pruning_config.lcc_only,
     )
 
-    pruned_nodes, pruned_edges = graph_to_dataframes(
-        pruned, node_columns=["title"], edge_columns=["source", "target"]
-    )
+    pruned_nodes, pruned_edges = graph_to_dataframes(pruned, node_columns=["title"], edge_columns=["source", "target"])
 
     # subset the full nodes and edges to only include the pruned remainders
     subset_entities = pruned_nodes.merge(entities, on="title", how="inner")
-    subset_relationships = pruned_edges.merge(
-        relationships, on=["source", "target"], how="inner"
-    )
+    subset_relationships = pruned_edges.merge(relationships, on=["source", "target"], how="inner")
 
     return (subset_entities, subset_relationships)

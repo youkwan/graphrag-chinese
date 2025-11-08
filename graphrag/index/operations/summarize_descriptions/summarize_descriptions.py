@@ -31,14 +31,10 @@ async def summarize_descriptions(
     """Summarize entity and relationship descriptions from an entity graph, using a language model."""
     logger.debug("summarize_descriptions strategy=%s", strategy)
     strategy = strategy or {}
-    strategy_exec = load_strategy(
-        strategy.get("type", SummarizeStrategyType.graph_intelligence)
-    )
+    strategy_exec = load_strategy(strategy.get("type", SummarizeStrategyType.graph_intelligence))
     strategy_config = {**strategy}
 
-    async def get_summarized(
-        nodes: pd.DataFrame, edges: pd.DataFrame, semaphore: asyncio.Semaphore
-    ):
+    async def get_summarized(nodes: pd.DataFrame, edges: pd.DataFrame, semaphore: asyncio.Semaphore):
         ticker_length = len(nodes) + len(edges)
 
         ticker = progress_ticker(

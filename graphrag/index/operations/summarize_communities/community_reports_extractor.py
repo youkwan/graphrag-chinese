@@ -32,9 +32,7 @@ class CommunityReportResponse(BaseModel):
 
     title: str = Field(description="The title of the report.")
     summary: str = Field(description="A summary of the report.")
-    findings: list[FindingModel] = Field(
-        description="A list of findings in the report."
-    )
+    findings: list[FindingModel] = Field(description="A list of findings in the report.")
     rating: float = Field(description="The rating of the report.")
     rating_explanation: str = Field(description="An explanation of the rating.")
 
@@ -96,7 +94,5 @@ class CommunityReportsExtractor:
         )
 
     def _get_text_output(self, report: CommunityReportResponse) -> str:
-        report_sections = "\n\n".join(
-            f"## {f.summary}\n\n{f.explanation}" for f in report.findings
-        )
+        report_sections = "\n\n".join(f"## {f.summary}\n\n{f.explanation}" for f in report.findings)
         return f"# {report.title}\n\n{report.summary}\n\n{report_sections}"

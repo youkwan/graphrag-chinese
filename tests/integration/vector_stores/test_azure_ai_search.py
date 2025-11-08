@@ -12,9 +12,7 @@ from graphrag.config.models.vector_store_schema_config import VectorStoreSchemaC
 from graphrag.vector_stores.azure_ai_search import AzureAISearchVectorStore
 from graphrag.vector_stores.base import VectorStoreDocument
 
-TEST_AZURE_AI_SEARCH_URL = os.environ.get(
-    "TEST_AZURE_AI_SEARCH_URL", "https://test-url.search.windows.net"
-)
+TEST_AZURE_AI_SEARCH_URL = os.environ.get("TEST_AZURE_AI_SEARCH_URL", "https://test-url.search.windows.net")
 TEST_AZURE_AI_SEARCH_KEY = os.environ.get("TEST_AZURE_AI_SEARCH_KEY", "test_api_key")
 
 
@@ -24,26 +22,20 @@ class TestAzureAISearchVectorStore:
     @pytest.fixture
     def mock_search_client(self):
         """Create a mock Azure AI Search client."""
-        with patch(
-            "graphrag.vector_stores.azure_ai_search.SearchClient"
-        ) as mock_client:
+        with patch("graphrag.vector_stores.azure_ai_search.SearchClient") as mock_client:
             yield mock_client.return_value
 
     @pytest.fixture
     def mock_index_client(self):
         """Create a mock Azure AI Search index client."""
-        with patch(
-            "graphrag.vector_stores.azure_ai_search.SearchIndexClient"
-        ) as mock_client:
+        with patch("graphrag.vector_stores.azure_ai_search.SearchIndexClient") as mock_client:
             yield mock_client.return_value
 
     @pytest.fixture
     def vector_store(self, mock_search_client, mock_index_client):
         """Create an Azure AI Search vector store instance."""
         vector_store = AzureAISearchVectorStore(
-            vector_store_schema_config=VectorStoreSchemaConfig(
-                index_name="test_vectors", vector_size=5
-            ),
+            vector_store_schema_config=VectorStoreSchemaConfig(index_name="test_vectors", vector_size=5),
         )
 
         # Create the necessary mocks first
@@ -98,9 +90,7 @@ class TestAzureAISearchVectorStore:
             ),
         ]
 
-    async def test_vector_store_operations(
-        self, vector_store, sample_documents, mock_search_client, mock_index_client
-    ):
+    async def test_vector_store_operations(self, vector_store, sample_documents, mock_search_client, mock_index_client):
         """Test basic vector store operations with Azure AI Search."""
         # Setup mock responses
         mock_index_client.list_index_names.return_value = []
@@ -139,9 +129,7 @@ class TestAzureAISearchVectorStore:
         filter_query = vector_store.filter_by_id(["doc1", "doc2"])
         assert filter_query == "search.in(id, 'doc1,doc2', ',')"
 
-        vector_results = vector_store.similarity_search_by_vector(
-            [0.1, 0.2, 0.3, 0.4, 0.5], k=2
-        )
+        vector_results = vector_store.similarity_search_by_vector([0.1, 0.2, 0.3, 0.4, 0.5], k=2)
         assert len(vector_results) == 2
         assert vector_results[0].document.id == "doc1"
         assert vector_results[0].score == 0.9
@@ -150,9 +138,7 @@ class TestAzureAISearchVectorStore:
         def mock_embedder(text: str) -> list[float]:
             return [0.1, 0.2, 0.3, 0.4, 0.5]
 
-        text_results = vector_store.similarity_search_by_text(
-            "test query", mock_embedder, k=2
-        )
+        text_results = vector_store.similarity_search_by_text("test query", mock_embedder, k=2)
         assert len(text_results) == 2
 
         doc = vector_store.search_by_id("doc1")
@@ -167,9 +153,7 @@ class TestAzureAISearchVectorStore:
         def none_embedder(text: str) -> None:
             return None
 
-        results = vector_store.similarity_search_by_text(
-            "test query", none_embedder, k=1
-        )
+        results = vector_store.similarity_search_by_text("test query", none_embedder, k=1)
         assert not mock_search_client.search.called
         assert len(results) == 0
 
@@ -216,14 +200,9 @@ class TestAzureAISearchVectorStore:
         assert mock_search_client.upload_documents.called
 
         filter_query = vector_store_custom.filter_by_id(["doc1", "doc2"])
-        assert (
-            filter_query
-            == f"search.in({vector_store_custom.id_field}, 'doc1,doc2', ',')"
-        )
+        assert filter_query == f"search.in({vector_store_custom.id_field}, 'doc1,doc2', ',')"
 
-        vector_results = vector_store_custom.similarity_search_by_vector(
-            [0.1, 0.2, 0.3, 0.4, 0.5], k=2
-        )
+        vector_results = vector_store_custom.similarity_search_by_vector([0.1, 0.2, 0.3, 0.4, 0.5], k=2)
         assert len(vector_results) == 2
         assert vector_results[0].document.id == "doc1"
         assert vector_results[0].score == 0.9
@@ -232,9 +211,7 @@ class TestAzureAISearchVectorStore:
         def mock_embedder(text: str) -> list[float]:
             return [0.1, 0.2, 0.3, 0.4, 0.5]
 
-        text_results = vector_store_custom.similarity_search_by_text(
-            "test query", mock_embedder, k=2
-        )
+        text_results = vector_store_custom.similarity_search_by_text("test query", mock_embedder, k=2)
         assert len(text_results) == 2
 
         doc = vector_store_custom.search_by_id("doc1")

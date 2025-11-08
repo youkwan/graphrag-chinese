@@ -91,9 +91,7 @@ class DynamicCommunitySelection:
                 rate_relevancy(
                     query=query,
                     description=(
-                        self.reports[community].summary
-                        if self.use_summary
-                        else self.reports[community].full_content
+                        self.reports[community].summary if self.use_summary else self.reports[community].full_content
                     ),
                     model=self.model,
                     tokenizer=self.tokenizer,
@@ -149,9 +147,7 @@ class DynamicCommunitySelection:
                 # append all communities at the next level to queue
                 queue = self.levels[str(level)]
 
-        community_reports = [
-            self.reports[community] for community in relevant_communities
-        ]
+        community_reports = [self.reports[community] for community in relevant_communities]
         end = time()
 
         logger.debug(

@@ -80,6 +80,4 @@ Limit your response length to {max_length} words.
 Add sections and commentary to the response as appropriate for the length and format. Style the response in markdown.
 """
 
-NO_DATA_ANSWER = (
-    "I am sorry but I am unable to answer this question given the provided data."
-)
+NO_DATA_ANSWER = "I am sorry but I am unable to answer this question given the provided data."

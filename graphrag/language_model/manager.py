@@ -42,9 +42,7 @@ class ModelManager:
         """Return the singleton instance of LLMManager."""
         return cls.__new__(cls)
 
-    def register_chat(
-        self, name: str, model_type: str, **chat_kwargs: Any
-    ) -> ChatModel:
+    def register_chat(self, name: str, model_type: str, **chat_kwargs: Any) -> ChatModel:
         """
         Register a ChatLLM instance under a unique name.
 
@@ -54,14 +52,10 @@ class ModelManager:
             **chat_kwargs: Additional parameters for instantiation.
         """
         chat_kwargs["name"] = name
-        self.chat_models[name] = ModelFactory.create_chat_model(
-            model_type, **chat_kwargs
-        )
+        self.chat_models[name] = ModelFactory.create_chat_model(model_type, **chat_kwargs)
         return self.chat_models[name]
 
-    def register_embedding(
-        self, name: str, model_type: str, **embedding_kwargs: Any
-    ) -> EmbeddingModel:
+    def register_embedding(self, name: str, model_type: str, **embedding_kwargs: Any) -> EmbeddingModel:
         """
         Register an EmbeddingsLLM instance under a unique name.
 
@@ -71,9 +65,7 @@ class ModelManager:
             **embedding_kwargs: Additional parameters for instantiation.
         """
         embedding_kwargs["name"] = name
-        self.embedding_models[name] = ModelFactory.create_embedding_model(
-            model_type, **embedding_kwargs
-        )
+        self.embedding_models[name] = ModelFactory.create_embedding_model(model_type, **embedding_kwargs)
         return self.embedding_models[name]
 
     def get_chat_model(self, name: str) -> ChatModel | None:
@@ -102,9 +94,7 @@ class ModelManager:
             raise ValueError(msg)
         return self.embedding_models[name]
 
-    def get_or_create_chat_model(
-        self, name: str, model_type: str, **chat_kwargs: Any
-    ) -> ChatModel:
+    def get_or_create_chat_model(self, name: str, model_type: str, **chat_kwargs: Any) -> ChatModel:
         """
         Retrieve the ChatLLM instance registered under the given name.
 
@@ -119,9 +109,7 @@ class ModelManager:
             return self.register_chat(name, model_type, **chat_kwargs)
         return self.chat_models[name]
 
-    def get_or_create_embedding_model(
-        self, name: str, model_type: str, **embedding_kwargs: Any
-    ) -> EmbeddingModel:
+    def get_or_create_embedding_model(self, name: str, model_type: str, **embedding_kwargs: Any) -> EmbeddingModel:
         """
         Retrieve the EmbeddingsLLM instance registered under the given name.
 

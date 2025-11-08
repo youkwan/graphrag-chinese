@@ -73,9 +73,7 @@ class DRIFTSearchContextBuilder(DRIFTContextBuilder):
 
         self.response_type = response_type
 
-        self.local_mixed_context = (
-            local_mixed_context or self.init_local_context_builder()
-        )
+        self.local_mixed_context = local_mixed_context or self.init_local_context_builder()
 
     def init_local_context_builder(self) -> LocalSearchMixedContext:
         """
@@ -117,20 +115,12 @@ class DRIFTSearchContextBuilder(DRIFTContextBuilder):
         """
         report_df = pd.DataFrame([asdict(report) for report in reports])
         missing_content_error = "Some reports are missing full content."
-        missing_embedding_error = (
-            "Some reports are missing full content embeddings. {missing} out of {total}"
-        )
+        missing_embedding_error = "Some reports are missing full content embeddings. {missing} out of {total}"
 
-        if (
-            "full_content" not in report_df.columns
-            or report_df["full_content"].isna().sum() > 0
-        ):
+        if "full_content" not in report_df.columns or report_df["full_content"].isna().sum() > 0:
             raise ValueError(missing_content_error)
 
-        if (
-            "full_content_embedding" not in report_df.columns
-            or report_df["full_content_embedding"].isna().sum() > 0
-        ):
+        if "full_content_embedding" not in report_df.columns or report_df["full_content_embedding"].isna().sum() > 0:
             raise ValueError(
                 missing_embedding_error.format(
                     missing=report_df["full_content_embedding"].isna().sum(),
@@ -163,9 +153,7 @@ class DRIFTSearchContextBuilder(DRIFTContextBuilder):
             and isinstance(query_embedding[0], type(embedding[0]))
         )
 
-    async def build_context(
-        self, query: str, **kwargs
-    ) -> tuple[pd.DataFrame, dict[str, int]]:
+    async def build_context(self, query: str, **kwargs) -> tuple[pd.DataFrame, dict[str, int]]:
         """
         Build DRIFT search context.
 
@@ -185,9 +173,7 @@ class DRIFTSearchContextBuilder(DRIFTContextBuilder):
         are incompatible.
         """
         if self.reports is None:
-            missing_reports_error = (
-                "No community reports available. Please provide a list of reports."
-            )
+            missing_reports_error = "No community reports available. Please provide a list of reports."
             raise ValueError(missing_reports_error)
 
         query_processor = PrimerQueryProcessor(
@@ -202,9 +188,7 @@ class DRIFTSearchContextBuilder(DRIFTContextBuilder):
         report_df = self.convert_reports_to_df(self.reports)
 
         # Check compatibility between query embedding and document embeddings
-        if not self.check_query_doc_encodings(
-            query_embedding, report_df["full_content_embedding"].iloc[0]
-        ):
+        if not self.check_query_doc_encodings(query_embedding, report_df["full_content_embedding"].iloc[0]):
             error_message = (
                 "Query and document embeddings are not compatible. "
                 "Please ensure that the embeddings are of the same type and length."
@@ -213,12 +197,8 @@ class DRIFTSearchContextBuilder(DRIFTContextBuilder):
 
         # Vectorized cosine similarity computation
         query_norm = np.linalg.norm(query_embedding)
-        document_norms = np.linalg.norm(
-            report_df["full_content_embedding"].to_list(), axis=1
-        )
-        dot_products = np.dot(
-            np.vstack(report_df["full_content_embedding"].to_list()), query_embedding
-        )
+        document_norms = np.linalg.norm(report_df["full_content_embedding"].to_list(), axis=1)
+        dot_products = np.dot(np.vstack(report_df["full_content_embedding"].to_list()), query_embedding)
         report_df["similarity"] = dot_products / (document_norms * query_norm)
 
         # Sort by similarity and select top-k

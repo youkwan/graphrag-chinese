@@ -71,11 +71,7 @@ class QATurn:
 
     def get_answer_text(self) -> str | None:
         """Get the text of the assistant answers."""
-        return (
-            "\n".join([answer.content for answer in self.assistant_answers])
-            if self.assistant_answers
-            else None
-        )
+        return "\n".join([answer.content for answer in self.assistant_answers]) if self.assistant_answers else None
 
     def __str__(self) -> str:
         """Return string representation of the QA turn."""
@@ -96,9 +92,7 @@ class ConversationHistory:
         self.turns = []
 
     @classmethod
-    def from_list(
-        cls, conversation_turns: list[dict[str, str]]
-    ) -> "ConversationHistory":
+    def from_list(cls, conversation_turns: list[dict[str, str]]) -> "ConversationHistory":
         """
         Create a conversation history from a list of conversation turns.
 
@@ -108,9 +102,7 @@ class ConversationHistory:
         for turn in conversation_turns:
             history.turns.append(
                 ConversationTurn(
-                    role=ConversationRole.from_string(
-                        turn.get("role", ConversationRole.USER)
-                    ),
+                    role=ConversationRole.from_string(turn.get("role", ConversationRole.USER)),
                     content=turn.get("content", ""),
                 )
             )
@@ -171,10 +163,7 @@ class ConversationHistory:
         tokenizer = tokenizer or get_tokenizer()
         qa_turns = self.to_qa_turns()
         if include_user_turns_only:
-            qa_turns = [
-                QATurn(user_query=qa_turn.user_query, assistant_answers=None)
-                for qa_turn in qa_turns
-            ]
+            qa_turns = [QATurn(user_query=qa_turn.user_query, assistant_answers=None) for qa_turn in qa_turns]
         if recency_bias:
             qa_turns = qa_turns[::-1]
         if max_qa_turns and len(qa_turns) > max_qa_turns:
@@ -207,7 +196,5 @@ class ConversationHistory:
                 break
 
             current_context_df = context_df
-        context_text = header + current_context_df.to_csv(
-            sep=column_delimiter, index=False
-        )
+        context_text = header + current_context_df.to_csv(sep=column_delimiter, index=False)
         return (context_text, {context_name.lower(): current_context_df})

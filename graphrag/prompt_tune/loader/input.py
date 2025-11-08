@@ -49,9 +49,7 @@ async def load_docs_in_chunks(
     k: int = K,
 ) -> list[str]:
     """Load docs into chunks for generating prompts."""
-    embeddings_llm_settings = config.get_language_model_config(
-        config.embed_text.model_id
-    )
+    embeddings_llm_settings = config.get_language_model_config(config.embed_text.model_id)
     input_storage = create_storage_from_config(config.input.storage)
     dataset = await create_input(config.input, input_storage)
     chunk_config = config.chunks
@@ -82,9 +80,7 @@ async def load_docs_in_chunks(
             raise ValueError(msg)
 
         """Convert text chunks into dense text embeddings."""
-        sampled_text_chunks = chunks_df.sample(n=min(n_subset_max, len(chunks_df)))[
-            "text"
-        ].tolist()
+        sampled_text_chunks = chunks_df.sample(n=min(n_subset_max, len(chunks_df)))["text"].tolist()
 
         embedding_results = await run_embed_text(
             sampled_text_chunks,

@@ -49,14 +49,10 @@ class FilePipelineStorage(PipelineStorage):
         def item_filter(item: dict[str, Any]) -> bool:
             if file_filter is None:
                 return True
-            return all(
-                re.search(value, item[key]) for key, value in file_filter.items()
-            )
+            return all(re.search(value, item[key]) for key, value in file_filter.items())
 
         search_path = Path(self._root_dir) / (base_dir or "")
-        logger.info(
-            "search %s for files matching %s", search_path, file_pattern.pattern
-        )
+        logger.info("search %s for files matching %s", search_path, file_pattern.pattern)
         all_files = list(search_path.rglob("**/*"))
         num_loaded = 0
         num_total = len(all_files)
@@ -84,9 +80,7 @@ class FilePipelineStorage(PipelineStorage):
                 num_total,
             )
 
-    async def get(
-        self, key: str, as_bytes: bool | None = False, encoding: str | None = None
-    ) -> Any:
+    async def get(self, key: str, as_bytes: bool | None = False, encoding: str | None = None) -> Any:
         """Get method definition."""
         file_path = join_path(self._root_dir, key)
 

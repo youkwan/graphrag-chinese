@@ -55,9 +55,7 @@ def run_tokens(
     )
 
 
-def run_sentences(
-    input: list[str], _config: ChunkingConfig, tick: ProgressTicker
-) -> Iterable[TextChunk]:
+def run_sentences(input: list[str], _config: ChunkingConfig, tick: ProgressTicker) -> Iterable[TextChunk]:
     """Chunks text into multiple parts by sentence."""
     for doc_idx, text in enumerate(input):
         sentences = nltk.sent_tokenize(text)

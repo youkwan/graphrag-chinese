@@ -33,9 +33,7 @@ async def run_workflow(
     return WorkflowFunctionOutput(result=output)
 
 
-def create_final_documents(
-    documents: pd.DataFrame, text_units: pd.DataFrame
-) -> pd.DataFrame:
+def create_final_documents(documents: pd.DataFrame, text_units: pd.DataFrame) -> pd.DataFrame:
     """All the steps to transform final documents."""
     exploded = (
         text_units.explode("document_ids")
@@ -57,9 +55,7 @@ def create_final_documents(
         copy=False,
     )
 
-    docs_with_text_units = joined.groupby("id", sort=False).agg(
-        text_unit_ids=("chunk_id", list)
-    )
+    docs_with_text_units = joined.groupby("id", sort=False).agg(text_unit_ids=("chunk_id", list))
 
     rejoined = docs_with_text_units.merge(
         documents,

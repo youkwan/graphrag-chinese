@@ -53,9 +53,7 @@ def test_load_strategy_sentence():
 def test_load_strategy_none():
     strategy_type = ChunkStrategyType
 
-    with pytest.raises(
-        ValueError, match="Unknown strategy: <enum 'ChunkStrategyType'>"
-    ):
+    with pytest.raises(ValueError, match="Unknown strategy: <enum 'ChunkStrategyType'>"):
         load_strategy(strategy_type)  # type: ignore
 
 
@@ -83,9 +81,7 @@ def test_run_strategy_arr_str():
     strategy_mocked = Mock()
 
     strategy_mocked.return_value = [
-        TextChunk(
-            text_chunk="text test for run strategy", source_doc_indices=[0], n_tokens=5
-        ),
+        TextChunk(text_chunk="text test for run strategy", source_doc_indices=[0], n_tokens=5),
         TextChunk(text_chunk="use for strategy", source_doc_indices=[1], n_tokens=3),
     ]
 
@@ -105,9 +101,7 @@ def test_run_strategy_arr_tuple():
     strategy_mocked = Mock()
 
     strategy_mocked.return_value = [
-        TextChunk(
-            text_chunk="text test for run strategy", source_doc_indices=[0], n_tokens=5
-        ),
+        TextChunk(text_chunk="text test for run strategy", source_doc_indices=[0], n_tokens=5),
         TextChunk(text_chunk="use for strategy", source_doc_indices=[1], n_tokens=3),
     ]
 
@@ -135,9 +129,7 @@ def test_run_strategy_arr_tuple_same_doc():
     strategy_mocked = Mock()
 
     strategy_mocked.return_value = [
-        TextChunk(
-            text_chunk="text test for run strategy", source_doc_indices=[0], n_tokens=5
-        ),
+        TextChunk(text_chunk="text test for run strategy", source_doc_indices=[0], n_tokens=5),
         TextChunk(text_chunk="use for strategy", source_doc_indices=[0], n_tokens=3),
     ]
 
@@ -176,6 +168,4 @@ def test_chunk_text(mock_progress_ticker, mock_run_strategy, mock_load_strategy)
 
     chunk_text(input_data, column, size, overlap, encoding_model, strategy, callbacks)
 
-    mock_run_strategy.assert_called_with(
-        mock_load_strategy(), "The Shining", ANY, mock_progress_ticker.return_value
-    )
+    mock_run_strategy.assert_called_with(mock_load_strategy(), "The Shining", ANY, mock_progress_ticker.return_value)

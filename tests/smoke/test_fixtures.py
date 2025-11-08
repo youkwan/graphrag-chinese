@@ -109,20 +109,14 @@ async def prepare_azurite_data(input_path: str, azure: dict) -> Callable[[], Non
     data_files = txt_files + csv_files
     for data_file in data_files:
         text = data_file.read_bytes().decode("utf-8")
-        file_path = (
-            str(Path(input_base_dir) / data_file.name)
-            if input_base_dir
-            else data_file.name
-        )
+        file_path = str(Path(input_base_dir) / data_file.name) if input_base_dir else data_file.name
         await input_storage.set(file_path, text, encoding="utf-8")
 
     return lambda: input_storage._delete_container()  # noqa: SLF001
 
 
 class TestIndexer:
-    params: ClassVar[dict[str, list[tuple[str, dict[str, Any]]]]] = {
-        "test_fixture": _load_fixtures()
-    }
+    params: ClassVar[dict[str, list[tuple[str, dict[str, Any]]]]] = {"test_fixture": _load_fixtures()}
 
     def __run_indexer(
         self,
@@ -143,13 +137,9 @@ class TestIndexer:
         command = [arg for arg in command if arg]
         logger.info("running command ", " ".join(command))
         completion = subprocess.run(command, env=os.environ)
-        assert completion.returncode == 0, (
-            f"Indexer failed with return code: {completion.returncode}"
-        )
+        assert completion.returncode == 0, f"Indexer failed with return code: {completion.returncode}"
 
-    def __assert_indexer_outputs(
-        self, root: Path, workflow_config: dict[str, dict[str, Any]]
-    ):
+    def __assert_indexer_outputs(self, root: Path, workflow_config: dict[str, dict[str, Any]]):
         output_path = root / "output"
 
         assert output_path.exists(), "output folder does not exist"
@@ -180,11 +170,7 @@ class TestIndexer:
                     output_df = pd.read_parquet(output_path / artifact)
 
                     # Check number of rows between range
-                    assert (
-                        config["row_range"][0]
-                        <= len(output_df)
-                        <= config["row_range"][1]
-                    ), (
+                    assert config["row_range"][0] <= len(output_df) <= config["row_range"][1], (
                         f"Expected between {config['row_range'][0]} and {config['row_range'][1]}, found: {len(output_df)} for file: {artifact}"
                     )
 

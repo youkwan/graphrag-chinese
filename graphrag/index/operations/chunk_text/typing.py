@@ -22,6 +22,4 @@ class TextChunk:
 ChunkInput = str | list[str] | list[tuple[str, str]]
 """Input to a chunking strategy. Can be a string, a list of strings, or a list of tuples of (id, text)."""
 
-ChunkStrategy = Callable[
-    [list[str], ChunkingConfig, ProgressTicker], Iterable[TextChunk]
-]
+ChunkStrategy = Callable[[list[str], ChunkingConfig, ProgressTicker], Iterable[TextChunk]]

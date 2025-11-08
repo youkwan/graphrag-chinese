@@ -33,16 +33,10 @@ def create_report_details_ui(sv: SessionVariables):
             if isinstance(findings, list):
                 for finding in findings:
                     # extract data for citations
-                    entity_ids.extend(
-                        get_ids_per_key(finding["explanation"], "Entities")
-                    )
-                    relationship_ids.extend(
-                        get_ids_per_key(finding["explanation"], "Relationships")
-                    )
+                    entity_ids.extend(get_ids_per_key(finding["explanation"], "Entities"))
+                    relationship_ids.extend(get_ids_per_key(finding["explanation"], "Relationships"))
 
-                    formatted_text = format_response_hyperlinks(
-                        finding["explanation"], "graph"
-                    )
+                    formatted_text = format_response_hyperlinks(finding["explanation"], "graph")
                     text += f"\n\n**{finding['summary']}**\n\n{formatted_text}"
             elif isinstance(findings, str):
                 # extract data for citations
@@ -87,12 +81,8 @@ def create_report_details_ui(sv: SessionVariables):
                     "description": row["description"],
                 })
 
-        sorted_relationships = sorted(
-            selected_relationships, key=lambda x: int(x["id"])
-        )
+        sorted_relationships = sorted(selected_relationships, key=lambda x: int(x["id"]))
 
-        display_graph_citations(
-            pd.DataFrame(sorted_entities), pd.DataFrame(sorted_relationships), "graph"
-        )
+        display_graph_citations(pd.DataFrame(sorted_entities), pd.DataFrame(sorted_relationships), "graph")
     else:
         st.write("No report selected")

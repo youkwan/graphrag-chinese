@@ -74,10 +74,7 @@ async def _run_extractor(
             title=report.title,
             rating_explanation=report.rating_explanation,
             summary=report.summary,
-            findings=[
-                Finding(explanation=f.explanation, summary=f.summary)
-                for f in report.findings
-            ],
+            findings=[Finding(explanation=f.explanation, summary=f.summary) for f in report.findings],
             full_content_json=report.model_dump_json(indent=4),
         )
     except Exception:

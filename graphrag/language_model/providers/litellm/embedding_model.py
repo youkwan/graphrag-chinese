@@ -128,16 +128,8 @@ def _create_embeddings(
     # For v3 release, force rpm/tpm to be int and remove the type checks below
     # and just check if rate_limit_strategy is enabled.
     if model_config.rate_limit_strategy is not None:
-        rpm = (
-            model_config.requests_per_minute
-            if type(model_config.requests_per_minute) is int
-            else None
-        )
-        tpm = (
-            model_config.tokens_per_minute
-            if type(model_config.tokens_per_minute) is int
-            else None
-        )
+        rpm = model_config.requests_per_minute if type(model_config.requests_per_minute) is int else None
+        tpm = model_config.tokens_per_minute if type(model_config.tokens_per_minute) is int else None
         if rpm is not None or tpm is not None:
             embedding, aembedding = with_rate_limiter(
                 sync_fn=embedding,
@@ -185,9 +177,7 @@ class LitellmEmbeddingModel:
         self.name = name
         self.config = config
         self.cache = cache.child(self.name) if cache else None
-        self.embedding, self.aembedding = _create_embeddings(
-            config, self.cache, "embeddings"
-        )
+        self.embedding, self.aembedding = _create_embeddings(config, self.cache, "embeddings")
 
     def _get_kwargs(self, **kwargs: Any) -> dict[str, Any]:
         """Get model arguments supported by litellm."""
@@ -200,9 +190,7 @@ class LitellmEmbeddingModel:
         ]
         return {k: v for k, v in kwargs.items() if k in args_to_include}
 
-    async def aembed_batch(
-        self, text_list: list[str], **kwargs: Any
-    ) -> list[list[float]]:
+    async def aembed_batch(self, text_list: list[str], **kwargs: Any) -> list[list[float]]:
         """
         Batch generate embeddings.
 
@@ -235,11 +223,7 @@ class LitellmEmbeddingModel:
         new_kwargs = self._get_kwargs(**kwargs)
         response = await self.aembedding(input=[text], **new_kwargs)
 
-        return (
-            response.data[0].get("embedding", [])
-            if response.data and response.data[0]
-            else []
-        )
+        return response.data[0].get("embedding", []) if response.data and response.data[0] else []
 
     def embed_batch(self, text_list: list[str], **kwargs: Any) -> list[list[float]]:
         """
@@ -273,8 +257,4 @@ class LitellmEmbeddingModel:
         new_kwargs = self._get_kwargs(**kwargs)
         response = self.embedding(input=[text], **new_kwargs)
 
-        return (
-            response.data[0].get("embedding", [])
-            if response.data and response.data[0]
-            else []
-        )
+        return response.data[0].get("embedding", []) if response.data and response.data[0] else []

@@ -28,12 +28,8 @@ MOCK_RESPONSES = [
         rating=2,
         rating_explanation="<rating_explanation>",
         findings=[
-            FindingModel(
-                summary="<insight_1_summary>", explanation="<insight_1_explanation"
-            ),
-            FindingModel(
-                summary="<insight_2_summary>", explanation="<insight_2_explanation"
-            ),
+            FindingModel(summary="<insight_1_summary>", explanation="<insight_1_explanation"),
+            FindingModel(summary="<insight_2_summary>", explanation="<insight_2_explanation"),
         ],
     )
 ]
@@ -52,9 +48,7 @@ async def test_create_community_reports():
     )
 
     config = create_graphrag_config({"models": DEFAULT_MODEL_CONFIG})
-    llm_settings = config.get_language_model_config(
-        config.community_reports.model_id
-    ).model_dump()
+    llm_settings = config.get_language_model_config(config.community_reports.model_id).model_dump()
     llm_settings["type"] = ModelType.MockChat
     llm_settings["responses"] = MOCK_RESPONSES
     llm_settings["parse_json"] = True

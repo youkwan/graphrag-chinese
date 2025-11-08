@@ -119,9 +119,7 @@ class DRIFTPrimer:
         self.config = config
         self.tokenizer = tokenizer or get_tokenizer()
 
-    async def decompose_query(
-        self, query: str, reports: pd.DataFrame
-    ) -> tuple[dict, dict[str, int]]:
+    async def decompose_query(self, query: str, reports: pd.DataFrame) -> tuple[dict, dict[str, int]]:
         """
         Decompose the query into subqueries based on the fetched global structures.
 
@@ -134,9 +132,7 @@ class DRIFTPrimer:
         tuple[dict, int, int]: Parsed response and the number of prompt and output tokens used.
         """
         community_reports = "\n\n".join(reports["full_content"].tolist())
-        prompt = DRIFT_PRIMER_PROMPT.format(
-            query=query, community_reports=community_reports
-        )
+        prompt = DRIFT_PRIMER_PROMPT.format(query=query, community_reports=community_reports)
         model_response = await self.chat_model.achat(prompt, json=True)
         response = model_response.output.content
 

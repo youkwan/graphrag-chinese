@@ -44,9 +44,7 @@ class BaseNounPhraseExtractor(metaclass=ABCMeta):
         """Return string representation of the extractor, used for cache key generation."""
 
     @staticmethod
-    def load_spacy_model(
-        model_name: str, exclude: list[str] | None = None
-    ) -> spacy.language.Language:
+    def load_spacy_model(model_name: str, exclude: list[str] | None = None) -> spacy.language.Language:
         """Load a SpaCy model."""
         if exclude is None:
             exclude = []

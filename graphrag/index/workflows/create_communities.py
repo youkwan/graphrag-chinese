@@ -29,9 +29,7 @@ async def run_workflow(
     """All the steps to transform final communities."""
     logger.info("Workflow started: create_communities")
     entities = await load_table_from_storage("entities", context.output_storage)
-    relationships = await load_table_from_storage(
-        "relationships", context.output_storage
-    )
+    relationships = await load_table_from_storage("relationships", context.output_storage)
 
     max_cluster_size = config.cluster_graph.max_cluster_size
     use_lcc = config.cluster_graph.use_lcc
@@ -68,16 +66,12 @@ def create_communities(
         seed=seed,
     )
 
-    communities = pd.DataFrame(
-        clusters, columns=pd.Index(["level", "community", "parent", "title"])
-    ).explode("title")
+    communities = pd.DataFrame(clusters, columns=pd.Index(["level", "community", "parent", "title"])).explode("title")
     communities["community"] = communities["community"].astype(int)
 
     # aggregate entity ids for each community
     entity_ids = communities.merge(entities, on="title", how="inner")
-    entity_ids = (
-        entity_ids.groupby("community").agg(entity_ids=("id", list)).reset_index()
-    )
+    entity_ids = entity_ids.groupby("community").agg(entity_ids=("id", list)).reset_index()
 
     # aggregate relationships ids for each community
     # these are limited to only those where the source and target are in the same community
@@ -87,12 +81,8 @@ def create_communities(
     )
     for level in range(max_level + 1):
         communities_at_level = communities.loc[communities["level"] == level]
-        sources = relationships.merge(
-            communities_at_level, left_on="source", right_on="title", how="inner"
-        )
-        targets = sources.merge(
-            communities_at_level, left_on="target", right_on="title", how="inner"
-        )
+        sources = relationships.merge(communities_at_level, left_on="source", right_on="title", how="inner")
+        targets = sources.merge(communities_at_level, left_on="target", right_on="title", how="inner")
         matched = targets.loc[targets["community_x"] == targets["community_y"]]
         text_units = matched.explode("text_unit_ids")
         grouped = (
@@ -110,26 +100,18 @@ def create_communities(
         )
         all_grouped = pd.concat([
             all_grouped,
-            grouped.loc[
-                :, ["community", "level", "parent", "relationship_ids", "text_unit_ids"]
-            ],
+            grouped.loc[:, ["community", "level", "parent", "relationship_ids", "text_unit_ids"]],
         ])
 
     # deduplicate the lists
-    all_grouped["relationship_ids"] = all_grouped["relationship_ids"].apply(
-        lambda x: sorted(set(x))
-    )
-    all_grouped["text_unit_ids"] = all_grouped["text_unit_ids"].apply(
-        lambda x: sorted(set(x))
-    )
+    all_grouped["relationship_ids"] = all_grouped["relationship_ids"].apply(lambda x: sorted(set(x)))
+    all_grouped["text_unit_ids"] = all_grouped["text_unit_ids"].apply(lambda x: sorted(set(x)))
 
     # join it all up and add some new fields
     final_communities = all_grouped.merge(entity_ids, on="community", how="inner")
     final_communities["id"] = [str(uuid4()) for _ in range(len(final_communities))]
     final_communities["human_readable_id"] = final_communities["community"]
-    final_communities["title"] = "Community " + final_communities["community"].astype(
-        str
-    )
+    final_communities["title"] = "Community " + final_communities["community"].astype(str)
     final_communities["parent"] = final_communities["parent"].astype(int)
     # collect the children so we have a tree going both ways
     parent_grouped = cast(

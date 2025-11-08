@@ -142,16 +142,8 @@ def _create_completions(
     # For v3 release, force rpm/tpm to be int and remove the type checks below
     # and just check if rate_limit_strategy is enabled.
     if model_config.rate_limit_strategy is not None:
-        rpm = (
-            model_config.requests_per_minute
-            if type(model_config.requests_per_minute) is int
-            else None
-        )
-        tpm = (
-            model_config.tokens_per_minute
-            if type(model_config.tokens_per_minute) is int
-            else None
-        )
+        rpm = model_config.requests_per_minute if type(model_config.requests_per_minute) is int else None
+        tpm = model_config.tokens_per_minute if type(model_config.tokens_per_minute) is int else None
         if rpm is not None or tpm is not None:
             completion, acompletion = with_rate_limiter(
                 sync_fn=completion,
@@ -190,18 +182,14 @@ class LitellmModelOutput(BaseModel):
     """A model representing the output from a language model."""
 
     content: str = Field(description="The generated text content")
-    full_response: None = Field(
-        default=None, description="The full response from the model, if available"
-    )
+    full_response: None = Field(default=None, description="The full response from the model, if available")
 
 
 class LitellmModelResponse(BaseModel):
     """A model representing the response from a language model."""
 
     output: LitellmModelOutput = Field(description="The output from the model")
-    parsed_response: BaseModel | None = Field(
-        default=None, description="Parsed response from the model"
-    )
+    parsed_response: BaseModel | None = Field(default=None, description="Parsed response from the model")
     history: list = Field(
         default_factory=list,
         description="Conversation history including the prompt and response",
@@ -221,9 +209,7 @@ class LitellmChatModel:
         self.name = name
         self.config = config
         self.cache = cache.child(self.name) if cache else None
-        self.completion, self.acompletion = _create_completions(
-            config, self.cache, "chat"
-        )
+        self.completion, self.acompletion = _create_completions(config, self.cache, "chat")
 
     def _get_kwargs(self, **kwargs: Any) -> dict[str, Any]:
         """Get model arguments supported by litellm."""
@@ -263,9 +249,7 @@ class LitellmChatModel:
 
         return new_args
 
-    async def achat(
-        self, prompt: str, history: list | None = None, **kwargs: Any
-    ) -> "MR":
+    async def achat(self, prompt: str, history: list | None = None, **kwargs: Any) -> "MR":
         """
         Generate a response for the given prompt and history.
 
@@ -296,13 +280,9 @@ class LitellmChatModel:
                 response.choices[0].message.content or "{}"  # type: ignore
             )
             parsed_response = parsed_dict  # type: ignore
-            if inspect.isclass(new_kwargs["response_format"]) and issubclass(
-                new_kwargs["response_format"], BaseModel
-            ):
+            if inspect.isclass(new_kwargs["response_format"]) and issubclass(new_kwargs["response_format"], BaseModel):
                 # If response_format is a pydantic model, instantiate it
-                model_initializer = cast(
-                    "type[BaseModel]", new_kwargs["response_format"]
-                )
+                model_initializer = cast("type[BaseModel]", new_kwargs["response_format"])
                 parsed_response = model_initializer(**parsed_dict)
 
         return LitellmModelResponse(
@@ -313,9 +293,7 @@ class LitellmChatModel:
             history=messages,
         )
 
-    async def achat_stream(
-        self, prompt: str, history: list | None = None, **kwargs: Any
-    ) -> AsyncGenerator[str, None]:
+    async def achat_stream(self, prompt: str, history: list | None = None, **kwargs: Any) -> AsyncGenerator[str, None]:
         """
         Generate a response for the given prompt and history.
 
@@ -370,13 +348,9 @@ class LitellmChatModel:
                 response.choices[0].message.content or "{}"  # type: ignore
             )
             parsed_response = parsed_dict  # type: ignore
-            if inspect.isclass(new_kwargs["response_format"]) and issubclass(
-                new_kwargs["response_format"], BaseModel
-            ):
+            if inspect.isclass(new_kwargs["response_format"]) and issubclass(new_kwargs["response_format"], BaseModel):
                 # If response_format is a pydantic model, instantiate it
-                model_initializer = cast(
-                    "type[BaseModel]", new_kwargs["response_format"]
-                )
+                model_initializer = cast("type[BaseModel]", new_kwargs["response_format"])
                 parsed_response = model_initializer(**parsed_dict)
 
         return LitellmModelResponse(
@@ -387,9 +361,7 @@ class LitellmChatModel:
             history=messages,
         )
 
-    def chat_stream(
-        self, prompt: str, history: list | None = None, **kwargs: Any
-    ) -> Generator[str, None]:
+    def chat_stream(self, prompt: str, history: list | None = None, **kwargs: Any) -> Generator[str, None]:
         """
         Generate a response for the given prompt and history.
 

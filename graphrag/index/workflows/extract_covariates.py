@@ -34,12 +34,8 @@ async def run_workflow(
     if config.extract_claims.enabled:
         text_units = await load_table_from_storage("text_units", context.output_storage)
 
-        extract_claims_llm_settings = config.get_language_model_config(
-            config.extract_claims.model_id
-        )
-        extraction_strategy = config.extract_claims.resolved_strategy(
-            config.root_dir, extract_claims_llm_settings
-        )
+        extract_claims_llm_settings = config.get_language_model_config(config.extract_claims.model_id)
+        extraction_strategy = config.extract_claims.resolved_strategy(config.root_dir, extract_claims_llm_settings)
 
         async_mode = extract_claims_llm_settings.async_mode
         num_threads = extract_claims_llm_settings.concurrent_requests

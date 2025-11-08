@@ -22,17 +22,13 @@ async def run_workflow(
 ) -> WorkflowFunctionOutput:
     """Update the text embeddings from a incremental index run."""
     logger.info("Workflow started: update_text_embeddings")
-    output_storage, _, _ = get_update_storages(
-        config, context.state["update_timestamp"]
-    )
+    output_storage, _, _ = get_update_storages(config, context.state["update_timestamp"])
 
     final_documents_df = context.state["incremental_update_final_documents"]
     merged_relationships_df = context.state["incremental_update_merged_relationships"]
     merged_text_units = context.state["incremental_update_merged_text_units"]
     merged_entities_df = context.state["incremental_update_merged_entities"]
-    merged_community_reports = context.state[
-        "incremental_update_merged_community_reports"
-    ]
+    merged_community_reports = context.state["incremental_update_merged_community_reports"]
 
     embedded_fields = config.embed_text.names
     text_embed = get_embedding_settings(config)

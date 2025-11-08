@@ -60,10 +60,7 @@ async def extract_covariates(
             cache=cache,
             strategy_config=strategy_config,
         )
-        return [
-            create_row_from_claim_data(row, item, covariate_type)
-            for item in result.covariate_data
-        ]
+        return [create_row_from_claim_data(row, item, covariate_type) for item in result.covariate_data]
 
     results = await derive_from_rows(
         input,
@@ -100,9 +97,7 @@ async def run_extract_claims(
     )
 
     extraction_prompt = strategy_config.get("extraction_prompt")
-    max_gleanings = strategy_config.get(
-        "max_gleanings", graphrag_config_defaults.extract_claims.max_gleanings
-    )
+    max_gleanings = strategy_config.get("max_gleanings", graphrag_config_defaults.extract_claims.max_gleanings)
     tuple_delimiter = strategy_config.get("tuple_delimiter")
     record_delimiter = strategy_config.get("record_delimiter")
     completion_delimiter = strategy_config.get("completion_delimiter")
@@ -111,9 +106,7 @@ async def run_extract_claims(
         model_invoker=llm,
         extraction_prompt=extraction_prompt,
         max_gleanings=max_gleanings,
-        on_error=lambda e, s, d: logger.error(
-            "Claim Extraction Error", exc_info=e, extra={"stack": s, "details": d}
-        ),
+        on_error=lambda e, s, d: logger.error("Claim Extraction Error", exc_info=e, extra={"stack": s, "details": d}),
     )
 
     claim_description = strategy_config.get("claim_description")

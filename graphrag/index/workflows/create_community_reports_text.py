@@ -45,14 +45,10 @@ async def run_workflow(
 
     text_units = await load_table_from_storage("text_units", context.output_storage)
 
-    community_reports_llm_settings = config.get_language_model_config(
-        config.community_reports.model_id
-    )
+    community_reports_llm_settings = config.get_language_model_config(config.community_reports.model_id)
     async_mode = community_reports_llm_settings.async_mode
     num_threads = community_reports_llm_settings.concurrent_requests
-    summarization_strategy = config.community_reports.resolved_strategy(
-        config.root_dir, community_reports_llm_settings
-    )
+    summarization_strategy = config.community_reports.resolved_strategy(config.root_dir, community_reports_llm_settings)
 
     output = await create_community_reports_text(
         entities,
@@ -93,9 +89,7 @@ async def create_community_reports_text(
     model_config = LanguageModelConfig(**summarization_strategy["llm"])
     tokenizer = get_tokenizer(model_config)
 
-    local_contexts = build_local_context(
-        communities, text_units, nodes, tokenizer, max_input_length
-    )
+    local_contexts = build_local_context(communities, text_units, nodes, tokenizer, max_input_length)
 
     community_reports = await summarize_communities(
         nodes,

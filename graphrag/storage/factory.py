@@ -31,9 +31,7 @@ class StorageFactory:
     _registry: ClassVar[dict[str, Callable[..., PipelineStorage]]] = {}
 
     @classmethod
-    def register(
-        cls, storage_type: str, creator: Callable[..., PipelineStorage]
-    ) -> None:
+    def register(cls, storage_type: str, creator: Callable[..., PipelineStorage]) -> None:
         """Register a custom storage implementation.
 
         Args:
