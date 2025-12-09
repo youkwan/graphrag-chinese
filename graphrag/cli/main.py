@@ -1,8 +1,3 @@
-# Copyright (c) 2024 Microsoft Corporation.
-# Licensed under the MIT License
-
-"""CLI entrypoint."""
-
 import os
 import re
 from collections.abc import Callable
@@ -23,10 +18,6 @@ app = typer.Typer(
 )
 
 
-# A workaround for typer's lack of support for proper autocompletion of file/directory paths
-# For more detail, watch
-#   https://github.com/fastapi/typer/discussions/682
-#   https://github.com/fastapi/typer/issues/951
 def path_autocomplete(
     file_okay: bool = True,
     dir_okay: bool = True,
@@ -40,15 +31,10 @@ def path_autocomplete(
         regex = re.escape(pattern).replace(r"\?", ".").replace(r"\*", ".*")
         return re.fullmatch(regex, string) is not None
 
-    from pathlib import Path
-
     def completer(incomplete: str) -> list[str]:
-        # List items in the current directory as Path objects
         items = Path().iterdir()
         completions = []
-
         for item in items:
-            # Filter based on file/directory properties
             if not file_okay and item.is_file():
                 continue
             if not dir_okay and item.is_dir():
@@ -57,18 +43,12 @@ def path_autocomplete(
                 continue
             if writable and not os.access(item, os.W_OK):
                 continue
-
-            # Append the name of the matching item
             completions.append(item.name)
-
-        # Apply wildcard matching if required
         if match_wildcard:
             completions = filter(
                 lambda i: wildcard_match(i, match_wildcard) if match_wildcard else False,
                 completions,
             )
-
-        # Return completions that start with the given incomplete string
         return [i for i in completions if i.startswith(incomplete)]
 
     return completer
@@ -193,6 +173,139 @@ def _index_cli(
         output_dir=output,
         method=method,
     )
+
+
+@app.command("query")
+def _query_cli(
+    method: SearchMethod = typer.Option(
+        ...,
+        "--method",
+        "-m",
+        help="The query algorithm to use.",
+    ),
+    query: str = typer.Option(
+        ...,
+        "--query",
+        "-q",
+        help="The query to execute.",
+    ),
+    config: Path | None = typer.Option(
+        None,
+        "--config",
+        "-c",
+        help="The configuration to use.",
+        exists=True,
+        file_okay=True,
+        readable=True,
+        autocompletion=CONFIG_AUTOCOMPLETE,
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Run the query with verbose logging.",
+    ),
+    data: Path | None = typer.Option(
+        None,
+        "--data",
+        "-d",
+        help="Index output directory (contains the parquet files).",
+        exists=True,
+        dir_okay=True,
+        readable=True,
+        resolve_path=True,
+        autocompletion=ROOT_AUTOCOMPLETE,
+    ),
+    root: Path = typer.Option(
+        Path(),
+        "--root",
+        "-r",
+        help="The project root directory.",
+        exists=True,
+        dir_okay=True,
+        writable=True,
+        resolve_path=True,
+        autocompletion=ROOT_AUTOCOMPLETE,
+    ),
+    community_level: int = typer.Option(
+        2,
+        "--community-level",
+        help=(
+            "Leiden hierarchy level from which to load community reports. Higher values represent smaller communities."
+        ),
+    ),
+    dynamic_community_selection: bool = typer.Option(
+        False,
+        "--dynamic-community-selection/--no-dynamic-selection",
+        help="Use global search with dynamic community selection.",
+    ),
+    response_type: str = typer.Option(
+        "Multiple Paragraphs",
+        "--response-type",
+        help=(
+            "Free-form description of the desired response format (e.g. 'Single Sentence', 'List of 3-7 Points', etc.)."
+        ),
+    ),
+    streaming: bool = typer.Option(
+        False,
+        "--streaming/--no-streaming",
+        help="Print the response in a streaming manner.",
+    ),
+) -> None:
+    """Query a knowledge graph index."""
+    from graphrag.cli.query import (
+        run_basic_search,
+        run_drift_search,
+        run_global_search,
+        run_local_search,
+    )
+
+    match method:
+        case SearchMethod.LOCAL:
+            run_local_search(
+                config_filepath=config,
+                data_dir=data,
+                root_dir=root,
+                community_level=community_level,
+                response_type=response_type,
+                streaming=streaming,
+                query=query,
+                verbose=verbose,
+            )
+        case SearchMethod.GLOBAL:
+            run_global_search(
+                config_filepath=config,
+                data_dir=data,
+                root_dir=root,
+                community_level=community_level,
+                dynamic_community_selection=dynamic_community_selection,
+                response_type=response_type,
+                streaming=streaming,
+                query=query,
+                verbose=verbose,
+            )
+        case SearchMethod.DRIFT:
+            run_drift_search(
+                config_filepath=config,
+                data_dir=data,
+                root_dir=root,
+                community_level=community_level,
+                streaming=streaming,
+                response_type=response_type,
+                query=query,
+                verbose=verbose,
+            )
+        case SearchMethod.BASIC:
+            run_basic_search(
+                config_filepath=config,
+                data_dir=data,
+                root_dir=root,
+                streaming=streaming,
+                query=query,
+                verbose=verbose,
+            )
+        case _:
+            raise ValueError(INVALID_METHOD_ERROR)
 
 
 @app.command("update")
@@ -399,134 +512,36 @@ def _prompt_tune_cli(
     )
 
 
-@app.command("query")
-def _query_cli(
-    method: SearchMethod = typer.Option(
+@app.command("to-txt")
+def _to_txt_cli(
+    source: Path = typer.Option(
         ...,
-        "--method",
-        "-m",
-        help="The query algorithm to use.",
-    ),
-    query: str = typer.Option(
-        ...,
-        "--query",
-        "-q",
-        help="The query to execute.",
-    ),
-    config: Path | None = typer.Option(
-        None,
-        "--config",
-        "-c",
-        help="The configuration to use.",
-        exists=True,
-        file_okay=True,
-        readable=True,
-        autocompletion=CONFIG_AUTOCOMPLETE,
-    ),
-    verbose: bool = typer.Option(
-        False,
-        "--verbose",
-        "-v",
-        help="Run the query with verbose logging.",
-    ),
-    data: Path | None = typer.Option(
-        None,
-        "--data",
-        "-d",
-        help="Index output directory (contains the parquet files).",
+        "--source",
+        "-s",
+        help="Source directory; recursively finds .doc and .docx files.",
         exists=True,
         dir_okay=True,
+        file_okay=False,
         readable=True,
         resolve_path=True,
         autocompletion=ROOT_AUTOCOMPLETE,
     ),
-    root: Path = typer.Option(
-        Path(),
-        "--root",
-        "-r",
-        help="The project root directory.",
-        exists=True,
+    output: Path = typer.Option(
+        ...,
+        "--output",
+        "-o",
+        help="Output directory; all converted txt files will be placed here. (Required)",
         dir_okay=True,
         writable=True,
         resolve_path=True,
-        autocompletion=ROOT_AUTOCOMPLETE,
     ),
-    community_level: int = typer.Option(
-        2,
-        "--community-level",
-        help=(
-            "Leiden hierarchy level from which to load community reports. Higher values represent smaller communities."
-        ),
-    ),
-    dynamic_community_selection: bool = typer.Option(
+    overwrite: bool = typer.Option(
         False,
-        "--dynamic-community-selection/--no-dynamic-selection",
-        help="Use global search with dynamic community selection.",
-    ),
-    response_type: str = typer.Option(
-        "Multiple Paragraphs",
-        "--response-type",
-        help=(
-            "Free-form description of the desired response format (e.g. 'Single Sentence', 'List of 3-7 Points', etc.)."
-        ),
-    ),
-    streaming: bool = typer.Option(
-        False,
-        "--streaming/--no-streaming",
-        help="Print the response in a streaming manner.",
+        "--overwrite/--no-overwrite",
+        help="Overwrite existing txt files if they already exist.",
     ),
 ) -> None:
-    """Query a knowledge graph index."""
-    from graphrag.cli.query import (
-        run_basic_search,
-        run_drift_search,
-        run_global_search,
-        run_local_search,
-    )
+    """Recursively convert Word files to txt and place all outputs into one folder."""
+    from graphrag.cli.to_txt import convert_word_docs_to_txt
 
-    match method:
-        case SearchMethod.LOCAL:
-            run_local_search(
-                config_filepath=config,
-                data_dir=data,
-                root_dir=root,
-                community_level=community_level,
-                response_type=response_type,
-                streaming=streaming,
-                query=query,
-                verbose=verbose,
-            )
-        case SearchMethod.GLOBAL:
-            run_global_search(
-                config_filepath=config,
-                data_dir=data,
-                root_dir=root,
-                community_level=community_level,
-                dynamic_community_selection=dynamic_community_selection,
-                response_type=response_type,
-                streaming=streaming,
-                query=query,
-                verbose=verbose,
-            )
-        case SearchMethod.DRIFT:
-            run_drift_search(
-                config_filepath=config,
-                data_dir=data,
-                root_dir=root,
-                community_level=community_level,
-                streaming=streaming,
-                response_type=response_type,
-                query=query,
-                verbose=verbose,
-            )
-        case SearchMethod.BASIC:
-            run_basic_search(
-                config_filepath=config,
-                data_dir=data,
-                root_dir=root,
-                streaming=streaming,
-                query=query,
-                verbose=verbose,
-            )
-        case _:
-            raise ValueError(INVALID_METHOD_ERROR)
+    convert_word_docs_to_txt(source_dir=source, output_dir=output, overwrite=overwrite)
