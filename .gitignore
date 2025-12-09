@@ -58,3 +58,11 @@ docsite/
 
 # Jupyter notebook
 .ipynb_checkpoints/
+
+# Graphrag generated files
+**/output/
+**/cache/
+**/logs/
+
+# ruff
+.ruff_cache/
