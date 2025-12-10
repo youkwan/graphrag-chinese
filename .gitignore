@@ -67,4 +67,10 @@ docsite/
 # ruff
 .ruff_cache/
 
+# Test Dataset
 data/
+raw/
+*.zip
+
+# Rumdl
+.rumdl_cache
