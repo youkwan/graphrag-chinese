@@ -5,6 +5,7 @@ from pathlib import Path
 
 import typer
 
+from graphrag.cli.pre_chunk import split_txt_directory
 from graphrag.config.defaults import graphrag_config_defaults
 from graphrag.config.enums import IndexingMethod, SearchMethod
 from graphrag.prompt_tune.defaults import LIMIT, MAX_TOKEN_COUNT, N_SUBSET_MAX, K
@@ -545,3 +546,48 @@ def _to_txt_cli(
     from graphrag.cli.to_txt import convert_word_docs_to_txt
 
     convert_word_docs_to_txt(source_dir=source, output_dir=output, overwrite=overwrite)
+
+
+@app.command("pre-chunk")
+def _pre_chunk_cli(
+    source: Path = typer.Option(
+        ...,
+        "--source",
+        "-s",
+        help="Source directory; recursively searches for all .txt files.",
+        exists=True,
+        dir_okay=True,
+        file_okay=False,
+        readable=True,
+        resolve_path=True,
+        autocompletion=ROOT_AUTOCOMPLETE,
+    ),
+    output: Path = typer.Option(
+        ...,
+        "--output",
+        "-o",
+        help="Output directory; pre-chunked txt files will be written here, preserving original relative paths.",
+        dir_okay=True,
+        writable=True,
+        resolve_path=True,
+    ),
+    chunk_size: int = typer.Option(
+        100,
+        "--chunk-size",
+        "-cs",
+        help="Maximum number of characters per chunk.",
+    ),
+    chunk_overlap: int = typer.Option(
+        20,
+        "--chunk-overlap",
+        "-co",
+        help="Number of overlapping characters between adjacent chunks, must be less than chunk-size.",
+    ),
+) -> None:
+    """Pre-chunk all txt files under a directory with the specified chunk size."""
+    split_txt_directory(
+        source_dir=source,
+        output_dir=output,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+    )
