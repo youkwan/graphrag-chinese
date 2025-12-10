@@ -42,7 +42,7 @@ models:
 input:
   storage:
     type: file # or blob
-    base_dir: "input"
+    base_dir: "input_chunked"
   file_type: text # [csv, text, json]
 
 chunks:
