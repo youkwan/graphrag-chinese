@@ -61,7 +61,6 @@ docsite/
 
 # Graphrag generated files
 **/output/
-**/cache/
 **/logs/
 
 # ruff

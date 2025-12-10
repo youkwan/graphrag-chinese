@@ -19,3 +19,5 @@ repos:
     rev: v8.29.0
     hooks:
       - id: gitleaks
+        args:
+          - --config=.gitleaks.toml
