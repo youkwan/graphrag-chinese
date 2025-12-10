@@ -67,7 +67,7 @@ docsite/
 .ruff_cache/
 
 # Test Dataset
-data/
+/data/
 raw/
 *.zip
 
