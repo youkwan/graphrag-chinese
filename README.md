@@ -105,11 +105,21 @@ Settings are pre-tuned; copy the desired variant into `data/settings.yaml`.
 ### Custom chunking
 - Linux / macOS:
   ```bash
-  cp ./templates/default.yaml ./data/settings.yaml
+  cp ./templates/chunked.yaml ./data/settings.yaml
   ```
 - Windows (PowerShell):
   ```powershell
-  Copy-Item -Path "./templates/default.yaml" -Destination "./data/settings.yaml"
+  Copy-Item -Path "./templates/chunked.yaml" -Destination "./data/settings.yaml"
+  ```
+
+### Chinese prompts + Custom chunking
+- Linux / macOS:
+  ```bash
+  cp ./templates/chinese_prompts_chunked.yaml ./data/settings.yaml
+  ```
+- Windows (PowerShell):
+  ```powershell
+  Copy-Item -Path "./templates/chinese_prompts_chunked.yaml" -Destination "./data/settings.yaml"
   ```
 
 > Additional configurations will be added later.
