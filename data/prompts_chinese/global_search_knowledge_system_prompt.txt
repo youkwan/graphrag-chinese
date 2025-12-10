@@ -1,3 +1,0 @@
-
-回應可包含資料集外、與問題相關的真實世界知識，但必須清楚加上驗證標記 [LLM: verify]。例如：
-"This is an example sentence supported by real-world knowledge [LLM: verify]."
