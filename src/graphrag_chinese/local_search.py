@@ -1,6 +1,6 @@
 import asyncio
 
-from graphrag.query.structured_search.local_search.search import LocalSearch
+from graphrag.query.structured_search.local_search.search import LocalSearch # pyright: ignore[reportMissingImports]
 
 from graphrag_chinese.shared_resources import GraphRAGSharedResources
 

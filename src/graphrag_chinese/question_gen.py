@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 
-from graphrag.query.question_gen.local_gen import LocalQuestionGen
+from graphrag.query.question_gen.local_gen import LocalQuestionGen # pyright: ignore[reportMissingImports]
 
 from graphrag_chinese.shared_resources import GraphRAGSharedResources
 

@@ -3,22 +3,22 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from graphrag.config.enums import ModelType
-from graphrag.config.models.language_model_config import LanguageModelConfig
-from graphrag.config.models.vector_store_schema_config import VectorStoreSchemaConfig
-from graphrag.language_model.manager import ModelManager
-from graphrag.query.context_builder.entity_extraction import EntityVectorStoreKey
-from graphrag.query.indexer_adapters import (
+from graphrag.config.enums import ModelType # pyright: ignore[reportMissingImports]
+from graphrag.config.models.language_model_config import LanguageModelConfig # pyright: ignore[reportMissingImports]
+from graphrag.config.models.vector_store_schema_config import VectorStoreSchemaConfig # pyright: ignore[reportMissingImports]   
+from graphrag.language_model.manager import ModelManager # pyright: ignore[reportMissingImports]
+from graphrag.query.context_builder.entity_extraction import EntityVectorStoreKey # pyright: ignore[reportMissingImports]
+from graphrag.query.indexer_adapters import ( # pyright: ignore[reportMissingImports]
     read_indexer_entities,
     read_indexer_relationships,
     read_indexer_reports,
     read_indexer_text_units,
 )
-from graphrag.query.structured_search.local_search.mixed_context import (
+from graphrag.query.structured_search.local_search.mixed_context import ( # pyright: ignore[reportMissingImports]
     LocalSearchMixedContext,
 )
-from graphrag.tokenizer.get_tokenizer import get_tokenizer
-from graphrag.vector_stores.lancedb import LanceDBVectorStore
+from graphrag.tokenizer.get_tokenizer import get_tokenizer # pyright: ignore[reportMissingImports]
+from graphrag.vector_stores.lancedb import LanceDBVectorStore # pyright: ignore[reportMissingImports]
 
 from graphrag_chinese.constants import (
     COMMUNITY_LEVEL,
