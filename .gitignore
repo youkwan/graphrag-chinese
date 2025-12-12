@@ -58,3 +58,18 @@ docsite/
 
 # Jupyter notebook
 .ipynb_checkpoints/
+
+# Graphrag generated files
+**/output/
+**/logs/
+
+# ruff
+.ruff_cache/
+
+# Test Dataset
+/data/
+raw/
+*.zip
+
+# Rumdl
+.rumdl_cache

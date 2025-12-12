@@ -1,0 +1,6 @@
+[allowlist]
+description = "Allow test azurite connection strings in integration test"
+paths = [
+  "packages/graphrag/tests/integration/cache/test_factory.py",
+]
+
