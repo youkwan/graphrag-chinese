@@ -58,23 +58,27 @@ PAIRWISE_PROMPT = ChatPromptTemplate.from_messages(
         (
             "system",
             "You are a helpful assistant responsible for grading two answers to a question provided by two different "
-            "people.\nGiven a question and two answers (Answer 1 and Answer 2), assess which answer is better "
+            "people.\nGiven a question and two responses (Response A and Response B), assess which response is better "
             "according to the following measure:\n{criteria}\nYour assessment should include two parts:\n"
-            "- Winner: either 1 (if Answer 1 is better), 2 (if Answer 2 is better), or 0 if they are fundamentally "
-            "similar and the differences are immaterial.\n- Reasoning: a short explanation of why you chose the winner "
-            "with respect to the measure described above.\nFormat your response as a JSON object with the following "
+            "- Winner: either \"A\" (if Response A is better), \"B\" (if Response B is better), or \"Tie\" if they are "
+            "fundamentally similar and the differences are immaterial.\n- Explanation: a short explanation of why you "
+            "chose the winner with respect to the measure described above.\nFormat your response as a JSON object with "
             "structure:\n"
-            '{{"winner": <1, 2, or 0>, "reasoning": "Answer <winner> is better because <your reasoning>."}}',
+            '{{"winner": "A|B|Tie", "explanation": "Response <winner> is better because <your explanation>."}}',
         ),
         (
             "human",
             "---Question---\n{question}\n"
-            "---Answer 1---\n{answer1}\n"
-            "---Answer 2---\n{answer2}\n"
-            "Assess which answer is better according to the following measure:\n{criteria}",
+            "---Response A---\n{response_a}\n"
+            "---Response B---\n{response_b}\n"
+            "Assess which response is better according to the following measure:\n{criteria}",
         ),
     ]
 ).partial(criteria=CRITERIA_PROMPT)
 
 if __name__ == "__main__":
-    print(PAIRWISE_PROMPT.format(question="What is the capital of France?", answer1="Paris", answer2="Berlin"))
+    print(
+        PAIRWISE_PROMPT.format(
+            question="What is the capital of France?", response_a="Paris", response_b="Berlin"
+        )
+    )
