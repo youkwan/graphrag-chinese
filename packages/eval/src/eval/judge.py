@@ -62,3 +62,29 @@ class PairwiseJudge:
             raise ValueError("The judge failed to return a valid decision structure.")
 
         return result
+
+    async def judge_async(self, question: str, response_a: str, response_b: str) -> JudgeDecision:
+        """Asynchronously compares two responses and determines the winner.
+
+        Args:
+            question: The question being answered.
+            response_a: The output from the first model.
+            response_b: The output from the second model.
+
+        Returns:
+            A JudgeDecision object containing the winner ('A', 'B', or 'Tie') and an explanation.
+        """
+        self.prompt_template = PAIRWISE_PROMPT
+        inputs = {
+            "question": question,
+            "response_a": response_a,
+            "response_b": response_b,
+        }
+
+        chain = self.prompt_template | self.llm.with_structured_output(JudgeDecision)
+        result = await chain.ainvoke(inputs)
+
+        if not isinstance(result, JudgeDecision):
+            raise ValueError("The judge failed to return a valid decision structure.")
+
+        return result

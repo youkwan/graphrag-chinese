@@ -1,275 +1,311 @@
 import argparse
+import asyncio
 import itertools
 import json
 import logging
 import os
 import shutil
 from pathlib import Path
-
-from dotenv import load_dotenv
+from typing import Any
 
 from eval.elo import EloRatingSystem
-from eval.judge import PairwiseJudge
-
+from eval.judge import JudgeDecision, PairwiseJudge
+from pydantic import BaseModel
+from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def load_model_outputs(file_path: Path) -> dict[str, str]:
-    """Loads model outputs from a JSONL file.
+class QA(BaseModel):
+    """A single answer record loaded from JSONL."""
+    question_id: str
+    question: str
+    response: str
 
-    Args:
-        file_path: Path to the JSONL file.
 
-    Returns:
-        A dictionary mapping input (prompt) to response.
-    """
-    outputs = {}
-    if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
-        return outputs
+class EloEvalRunner:
+    """Runs pairwise judging and computes ELO rankings."""
 
-    with file_path.open("r", encoding="utf-8") as f:
-        for line_num, line in enumerate(f, 1):
-            if not line.strip():
-                continue
-            try:
-                data = json.loads(line)
-                input_key = str(data.get("question", ""))
-                response = data.get("response", "")
+    def __init__(
+        self,
+        *,
+        judge: PairwiseJudge | None = None,
+        elo_system: EloRatingSystem | None = None,
+        max_concurrency: int = 8,
+    ) -> None:
+        """Initializes the runner.
 
-                if not input_key:
-                    logger.warning(f"Line {line_num} in {file_path} missing 'question'. Skipping.")
+        Args:
+            judge: Pairwise LLM judge. If None, a default judge is created.
+            elo_system: ELO rating system. If None, a default system is created.
+            max_concurrency: Maximum number of concurrent judge calls.
+        """
+        self.judge = judge or PairwiseJudge()
+        self.elo_system = elo_system or EloRatingSystem()
+        self.max_concurrency = max(1, int(max_concurrency))
+
+    def load_model_outputs(self, file_path: Path) -> list[QA]:
+        """Loads model outputs from a JSONL file.
+
+        Args:
+            file_path: Path to the JSONL file.
+
+        Returns:
+            A list of QA objects.
+        """
+        if not file_path.exists():
+            logger.error(f"File not found: {file_path}")
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        qas: list[QA] = []
+        with file_path.open("r", encoding="utf-8") as f:
+            for line_num, line in enumerate(f, 1):
+                if not line.strip():
                     continue
+                try:
+                    data = json.loads(line)
+                    question_id = str(data.get("question_id", ""))
+                    question = str(data.get("question", ""))
+                    response = str(data.get("response", ""))
+                    if not question_id or not question or not response:
+                        logger.warning(
+                            f"{file_path} line {line_num} is missing 'question_id', 'question', or 'response', skipped."
+                        )
+                        continue
+                    qas.append(QA(question_id=question_id, question=question, response=response))
+                except Exception as e:
+                    logger.error(f"{file_path} line {line_num} is not valid JSON: {e}")
+                    raise ValueError(f"Invalid JSON on line {line_num} in {file_path}: {e}")
 
-                outputs[input_key] = response
-            except json.JSONDecodeError:
-                logger.error(f"Invalid JSON on line {line_num} in {file_path}")
+        return qas
 
-    return outputs
+    async def _judge_one(
+        self,
+        *,
+        sem: asyncio.Semaphore,
+        question: str,
+        response_a: str,
+        response_b: str,
+    ) -> JudgeDecision:
+        async with sem:
+            return await self.judge.judge_async(question, response_a, response_b)
 
+    def _score_from_winner(self, winner: str) -> float:
+        if winner == "A":
+            return 1.0
+        if winner == "B":
+            return 0.0
+        return 0.5
 
-def run_pairwise_comparison(
-    model_a_name: str,
-    outputs_a: dict[str, str],
-    model_b_name: str,
-    outputs_b: dict[str, str],
-    elo_system: EloRatingSystem,
-    judge: PairwiseJudge,
-    reference_answers: dict[str, str] | None = None,
-) -> list[dict]:
-    """Runs pairwise comparison between two models and updates ELO."""
+    async def run_pairwise_comparison_async(
+        self,
+        *,
+        name_a: str,
+        qa_a: list[QA],
+        name_b: str,
+        qa_b: list[QA],
+    ) -> list[dict[str, Any]]:
+        """Runs pairwise comparison between two models using async judge calls.
 
-    # Find common inputs
-    common_inputs = set(outputs_a.keys()) & set(outputs_b.keys())
-    if not common_inputs:
-        logger.warning(f"No common inputs found between {model_a_name} and {model_b_name}.")
-        return []
+        Judge calls are executed concurrently, while ELO updates are applied in a deterministic order.
 
-    logger.info(f"Comparing {model_a_name} vs {model_b_name} ({len(common_inputs)} items)")
+        Args:
+            name_a: Model A name.
+            qa_a: Model A outputs.
+            name_b: Model B name.
+            qa_b: Model B outputs.
 
-    results = []
-
-    # Sort inputs to ensure deterministic order
-    try:
-        sorted_inputs = sorted(common_inputs, key=lambda x: int(x))
-    except ValueError:
-        sorted_inputs = sorted(common_inputs)
-
-    for prompt_id in sorted_inputs:
-        response_a = outputs_a[prompt_id]
-        response_b = outputs_b[prompt_id]
-        question = prompt_id
-
-        # Round 1: Model A vs Model B
-        try:
-            decision_1 = judge.judge(question, response_a, response_b)
-
-            # Determine score for model A in Round 1
-            if decision_1.winner == "A":
-                score_a_1 = 1.0
-            elif decision_1.winner == "B":
-                score_a_1 = 0.0
-            else:
-                score_a_1 = 0.5
-
-            elo_system.update_ratings(model_a_name, model_b_name, score_a_1)
-
-            results.append(
-                {
-                    "input": prompt_id,
-                    "model_a": model_a_name,
-                    "model_b": model_b_name,
-                    "response_a": response_a,
-                    "response_b": response_b,
-                    "judge_decision": decision_1.winner,
-                    "judge_explanation": decision_1.explanation,
-                    "swapped": False,
-                }
+        Returns:
+            A list of per-question comparison results.
+        """
+        if len(qa_a) != len(qa_b):
+            logger.warning(
+                f"Model {name_a} and {name_b} have different number of questions ({len(qa_a)} vs {len(qa_b)}), taking the smaller size."
             )
+        n = min(len(qa_a), len(qa_b))
+        sem = asyncio.Semaphore(self.max_concurrency)
 
-        except Exception as e:
-            logger.error(f"Error judging {model_a_name} vs {model_b_name} on prompt {prompt_id}: {e}")
+        async def run_round(i: int, swapped: bool) -> tuple[int, bool, JudgeDecision | None, str | None]:
+            question = qa_a[i].question
+            response_a = qa_a[i].response
+            response_b = qa_b[i].response
+            try:
+                if not swapped:
+                    decision = await self._judge_one(
+                        sem=sem, question=question, response_a=response_a, response_b=response_b
+                    )
+                else:
+                    decision = await self._judge_one(
+                        sem=sem, question=question, response_a=response_b, response_b=response_a
+                    )
+                return i, swapped, decision, None
+            except Exception as e:
+                return i, swapped, None, str(e)
 
-        # Round 2: Model B vs Model A (Swap Position)
-        try:
-            decision_2 = judge.judge(question, response_b, response_a)
+        tasks = [asyncio.create_task(run_round(i, swapped)) for i in range(n) for swapped in (False, True)]
+        round_results = await asyncio.gather(*tasks)
+        round_results.sort(key=lambda x: (x[0], x[1]))  # deterministic: round1 then swapped
 
-            # Determine score for model B in Round 2 (which is effectively model A in this call)
-            # decision_2.winner refers to the first arg (response_b) as "A" and second arg (response_a) as "B"
-            # So if winner is "A", it means model B won. If winner is "B", it means model A won.
-            # Wired logic, but it works.
+        results: list[dict[str, Any]] = []
 
-            if decision_2.winner == "A":
-                # Model B (first arg) won -> Model A lost
-                score_a_2 = 0.0
-                real_winner = "B"
-            elif decision_2.winner == "B":
-                # Model A (second arg) won -> Model A won
-                score_a_2 = 1.0
-                real_winner = "A"
+        for i, swapped, decision, err in round_results:
+            question_id = qa_a[i].question_id if not swapped else qa_b[i].question_id
+            question = qa_a[i].question
+            response_a = qa_a[i].response
+            response_b = qa_b[i].response
+
+            if err or decision is None:
+                if not swapped:
+                    logger.error(f"Scoring failed: {name_a} vs {name_b} (question {question_id}): {err}")
+                else:
+                    logger.error(f"Scoring failed: {name_b} vs {name_a} (swapped, question {question_id}): {err}")
+                continue
+
+            if not swapped:
+                score_a = self._score_from_winner(decision.winner)
+                self.elo_system.update_ratings(name_a, name_b, score_a)
+                results.append(
+                    {
+                        "question_id": question_id,
+                        "model_a": name_a,
+                        "model_b": name_b,
+                        "response_a": response_a,
+                        "response_b": response_b,
+                        "judge_decision": decision.winner,
+                        "judge_explanation": decision.explanation,
+                        "swapped": False,
+                    }
+                )
             else:
-                score_a_2 = 0.5
-                real_winner = "Tie"
+                # The judge saw (response_b as A, response_a as B).
+                # Convert the judge winner into "who actually won in original naming".
+                if decision.winner == "A":
+                    score_a = 0.0
+                    real_winner = "B"
+                elif decision.winner == "B":
+                    score_a = 1.0
+                    real_winner = "A"
+                else:
+                    score_a = 0.5
+                    real_winner = "Tie"
 
-            elo_system.update_ratings(model_a_name, model_b_name, score_a_2)
+                self.elo_system.update_ratings(name_a, name_b, score_a)
+                results.append(
+                    {
+                        "question_id": question_id,
+                        "model_a": name_b,
+                        "model_b": name_a,
+                        "response_a": response_b,
+                        "response_b": response_a,
+                        "judge_decision": decision.winner,
+                        "judge_explanation": decision.explanation,
+                        "swapped": True,
+                        "real_winner": real_winner,
+                    }
+                )
 
-            results.append(
-                {
-                    "input": prompt_id,
-                    "model_a": model_b_name,  # Swapped order in record
-                    "model_b": model_a_name,
-                    "response_a": response_b,
-                    "response_b": response_a,
-                    "judge_decision": decision_2.winner,  # "A" here means model_b won
-                    "judge_explanation": decision_2.explanation,
-                    "swapped": True,
-                    "real_winner": real_winner,  # Helper for clarity
-                }
-            )
+        return results
 
-        except Exception as e:
-            logger.error(f"Error judging {model_b_name} vs {model_a_name} (swapped) on prompt {prompt_id}: {e}")
+    async def process_evaluations_async(self, input_path: Path, report_dir: Path | None = None) -> None:
+        """Reads comparisons from a directory, updates ELO, and saves detailed reports.
 
-    return results
+        Args:
+            input_path: Path to a directory containing JSONL files.
+            report_dir: Path to the directory where reports will be saved.
+        """
+        if report_dir:
+            if report_dir.exists():
+                shutil.rmtree(report_dir)
+            report_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Reports will be saved to: {report_dir}")
 
-
-def process_evaluations(input_path: Path, report_dir: Path | None = None, reference_file: Path | None = None) -> None:
-    """Reads comparisons from a directory, updates ELO, and saves detailed reports.
-
-    Args:
-        input_path: Path to a directory containing JSONL files.
-        report_dir: Path to the directory where reports will be saved.
-        reference_file: Optional path to a JSONL file containing reference answers.
-    """
-    elo_system = EloRatingSystem()
-    judge = PairwiseJudge()
-
-    # Load reference answers if provided
-    reference_answers = {}
-    if reference_file:
-        if reference_file.exists():
-            logger.info(f"Loading reference answers from {reference_file}")
-            reference_answers = load_model_outputs(reference_file)
-        else:
-            logger.error(f"Reference file not found: {reference_file}")
+        if not input_path.is_dir():
+            logger.error("Input must be a folder containing .jsonl files.")
             return
 
-    if report_dir:
-        if report_dir.exists():
-            shutil.rmtree(report_dir)
-        report_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Reports will be saved to {report_dir}")
-
-    model_files = []
-
-    if input_path.is_dir():
         model_files = list(input_path.glob("*.jsonl"))
         if len(model_files) < 2:
-            logger.error("Directory must contain at least two .jsonl files.")
+            logger.error("The folder must contain at least two .jsonl files.")
             return
-        logger.info(f"Found {len(model_files)} model files in {input_path}")
-    else:
-        logger.error("Input must be a directory containing .jsonl files.")
-        return
+        logger.info(f"Found {len(model_files)} model output files in {input_path}")
 
-    pairs = list(itertools.combinations(model_files, 2))
-    logger.info(f"Generated {len(pairs)} pairwise comparisons.")
+        pairs = list(itertools.combinations(model_files, 2))
+        logger.info(f"Generated {len(pairs)} pairwise comparisons.")
 
-    loaded_models = {}
+        loaded_models: dict[str, list[QA]] = {}
+        all_pairwise_results: list[dict[str, Any]] = []
 
-    all_pairwise_results = []
+        for file_a, file_b in pairs:
+            model_a_name = file_a.stem
+            model_b_name = file_b.stem
 
-    for file_a, file_b in pairs:
-        model_a_name = file_a.stem
-        model_b_name = file_b.stem
+            if model_a_name not in loaded_models:
+                loaded_models[model_a_name] = self.load_model_outputs(file_a)
+            if model_b_name not in loaded_models:
+                loaded_models[model_b_name] = self.load_model_outputs(file_b)
 
-        if model_a_name not in loaded_models:
-            loaded_models[model_a_name] = load_model_outputs(file_a)
-        if model_b_name not in loaded_models:
-            loaded_models[model_b_name] = load_model_outputs(file_b)
+            outputs_a = loaded_models[model_a_name]
+            outputs_b = loaded_models[model_b_name]
 
-        outputs_a = loaded_models[model_a_name]
-        outputs_b = loaded_models[model_b_name]
+            pair_results = await self.run_pairwise_comparison_async(
+                name_a=model_a_name, qa_a=outputs_a, name_b=model_b_name, qa_b=outputs_b
+            )
+            all_pairwise_results.extend(pair_results)
 
-        pair_results = run_pairwise_comparison(
-            model_a_name, outputs_a, model_b_name, outputs_b, elo_system, judge, reference_answers
-        )
-        all_pairwise_results.extend(pair_results)
+        print("\n=== Final ELO Leaderboard ===")
+        sorted_ratings = sorted(self.elo_system.ratings.items(), key=lambda x: x[1], reverse=True)
+        for rank, (model, rating) in enumerate(sorted_ratings, 1):
+            print(f"{rank}. {model}: {rating:.2f}")
 
-    print("\n=== Final ELO Rankings ===")
-    sorted_ratings = sorted(elo_system.ratings.items(), key=lambda x: x[1], reverse=True)
-    for rank, (model, rating) in enumerate(sorted_ratings, 1):
-        print(f"{rank}. {model}: {rating:.2f}")
+        if report_dir:
+            pairwise_file = report_dir / "pairwise_results.jsonl"
+            with pairwise_file.open("w", encoding="utf-8") as f:
+                for res in all_pairwise_results:
+                    f.write(json.dumps(res, ensure_ascii=False) + "\n")
+            logger.info(f"Pairwise comparison results saved to: {pairwise_file}")
 
-    if report_dir:
-        pairwise_file = report_dir / "pairwise_results.jsonl"
-        with pairwise_file.open("w", encoding="utf-8") as f:
-            for res in all_pairwise_results:
-                f.write(json.dumps(res, ensure_ascii=False) + "\n")
-        logger.info(f"Pairwise results saved to {pairwise_file}")
+            history_file = report_dir / "elo_history.jsonl"
+            with history_file.open("w", encoding="utf-8") as f:
+                for record in self.elo_system.history:
+                    f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            logger.info(f"ELO history saved to: {history_file}")
 
-        history_file = report_dir / "elo_history.jsonl"
-        with history_file.open("w", encoding="utf-8") as f:
-            for record in elo_system.history:
-                f.write(json.dumps(record, ensure_ascii=False) + "\n")
-        logger.info(f"ELO history saved to {history_file}")
-
-        leaderboard_file = report_dir / "leaderboard.json"
-        leaderboard_data = [
-            {"rank": rank, "model": model, "rating": rating} for rank, (model, rating) in enumerate(sorted_ratings, 1)
-        ]
-        with leaderboard_file.open("w", encoding="utf-8") as f:
-            json.dump(leaderboard_data, f, ensure_ascii=False, indent=2)
-        logger.info(f"Final leaderboard saved to {leaderboard_file}")
+            leaderboard_file = report_dir / "leaderboard.json"
+            leaderboard_data = [
+                {"rank": rank, "model": model, "rating": rating}
+                for rank, (model, rating) in enumerate(sorted_ratings, 1)
+            ]
+            with leaderboard_file.open("w", encoding="utf-8") as f:
+                json.dump(leaderboard_data, f, ensure_ascii=False, indent=2)
+            logger.info(f"Leaderboard saved to: {leaderboard_file}")
 
 
 def main() -> None:
     load_dotenv()
 
     if not os.getenv("OPENAI_API_KEY"):
-        logger.warning("OPENAI_API_KEY not found in environment variables. Judge calls may fail.")
+        logger.warning("OPENAI_API_KEY not set (judge calls may fail).")
 
-    parser = argparse.ArgumentParser(description="LLM-as-a-Judge ELO Ranking System")
+    parser = argparse.ArgumentParser(description="LLM-as-a-Judge ELO Ranking System (Async Version)")
 
-    parser.add_argument("input_dir", type=Path, help="Path to directory containing .jsonl files for each model")
+    parser.add_argument("--input_dir", type=Path, help="Path to directory containing .jsonl model outputs")
     parser.add_argument(
         "--report-dir",
         type=Path,
         default=Path("report"),
-        help="Directory to save report files (pairwise results, elo history, leaderboard)",
+        help="Directory to save report files (pairwise results / elo history / leaderboard)",
     )
-
     parser.add_argument(
-        "--reference",
-        type=Path,
-        default=None,
-        help="Path to a JSONL file containing reference answers (optional)",
+        "--max-concurrency",
+        type=int,
+        default=8,
+        help="Maximum number of concurrent judge calls (avoid triggering rate limits)",
     )
 
     args = parser.parse_args()
 
-    process_evaluations(args.input_dir, args.report_dir, args.reference)
+    runner = EloEvalRunner(max_concurrency=args.max_concurrency)
+    asyncio.run(runner.process_evaluations_async(args.input_dir, args.report_dir))
 
 
 if __name__ == "__main__":
