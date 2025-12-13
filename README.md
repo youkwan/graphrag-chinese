@@ -1,6 +1,7 @@
 # graphrag chinese
 
 ## Installation
+
 ```bash
 git clone https://github.com/youkwan/graphrag-chinese.git
 cd graphrag-chinese
@@ -83,41 +84,59 @@ Fill in `GRAPHRAG_API_KEY` in `.env`.
 ## Choose settings
 
 Settings are pre-tuned; copy the desired variant into `data/settings.yaml`.
+
 ### Baseline
 
 - Linux / macOS:
+
   ```bash
   cp ./templates/default.yaml ./data/settings.yaml
   ```
+
 - Windows (PowerShell):
+
   ```powershell
   Copy-Item -Path "./templates/default.yaml" -Destination "./data/settings.yaml"
   ```
+
 ### Chinese prompts
+
 - Linux / macOS:
+
   ```bash
   cp ./templates/chinese_prompts.yaml ./data/settings.yaml
   ```
+
 - Windows (PowerShell):
+
   ```powershell
   Copy-Item -Path "./templates/chinese_prompts.yaml" -Destination "./data/settings.yaml"
   ```
+
 ### Custom chunking
+
 - Linux / macOS:
+
   ```bash
   cp ./templates/chunked.yaml ./data/settings.yaml
   ```
+
 - Windows (PowerShell):
+
   ```powershell
   Copy-Item -Path "./templates/chunked.yaml" -Destination "./data/settings.yaml"
   ```
 
 ### Chinese prompts + Custom chunking
+
 - Linux / macOS:
+
   ```bash
   cp ./templates/chinese_prompts_chunked.yaml ./data/settings.yaml
   ```
+
 - Windows (PowerShell):
+
   ```powershell
   Copy-Item -Path "./templates/chinese_prompts_chunked.yaml" -Destination "./data/settings.yaml"
   ```
@@ -128,6 +147,12 @@ Settings are pre-tuned; copy the desired variant into `data/settings.yaml`.
 
 ```bash
 uv run graphrag index --root ./data/
+```
+
+## Question generation
+
+```bash
+uv run question-gen
 ```
 
 ## Batch Query

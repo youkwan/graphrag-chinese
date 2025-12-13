@@ -50,11 +50,14 @@ class LocalQuestionGenService:
         return candidate_questions.response
 
 
-async def main() -> None:
+async def generate_questions(question_count: int = 30) -> None:
     components = GraphRAGSharedResources()
     question_service = LocalQuestionGenService(components)
-    candidate_questions = await question_service.generate(question_history=[], context_data=None, question_count=30)
+    candidate_questions = await question_service.generate(question_history=[], context_data=None, question_count=question_count)
     print(candidate_questions)
 
+def main() -> None:
+    asyncio.run(generate_questions(question_count=30))
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
