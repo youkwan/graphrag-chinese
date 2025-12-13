@@ -42,16 +42,6 @@ class LocalSearchService:
         return result.response
 
 
-def _repo_root() -> Path:
-    """Return the repository root directory.
-
-    Returns:
-        Path: The repository root (two levels above this file's directory).
-    """
-
-    return Path(__file__).resolve().parents[2]
-
-
 def _load_questions_jsonl(questions_path: Path) -> list[dict[str, Any]]:
     """Load benchmark questions from a JSONL file.
 
@@ -94,7 +84,7 @@ def _load_questions_jsonl(questions_path: Path) -> list[dict[str, Any]]:
     return questions
 
 
-async def generate_answers_for_benchmark_questions(name: str) -> Path:
+async def generate_answers(name: str) -> Path:
     """Generate responses for each benchmark question and save to `benchmarks/answers`.
     and write a JSONL file where each line includes:
         - question_id: question_id (string, used as the stable evaluation key)
@@ -159,7 +149,7 @@ async def generate_answers_for_benchmark_questions(name: str) -> Path:
 
 
 async def main() -> None:
-    await generate_answers_for_benchmark_questions("default")
+    await generate_answers("default")
 
 
 if __name__ == "__main__":
