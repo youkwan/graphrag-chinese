@@ -25,10 +25,10 @@ from graphrag_chinese.constants import (
     COMMUNITY_REPORT_TABLE,
     COMMUNITY_TABLE,
     ENTITY_TABLE,
-    INPUT_DIR,
+    OUTPUT_DIR,
     RELATIONSHIP_TABLE,
     TEXT_UNIT_TABLE,
-    Settings,
+    APP_SETTINGS,
 )
 
 
@@ -46,7 +46,7 @@ class GraphRAGSharedResources:
         api_key (str | None): Explicitly specified API key.
     """
 
-    input_dir: Path = INPUT_DIR
+    input_dir: Path = OUTPUT_DIR
     community_level: int = COMMUNITY_LEVEL
     chat_model_config: LanguageModelConfig | None = None
     embedding_model_config: LanguageModelConfig | None = None
@@ -92,7 +92,7 @@ class GraphRAGSharedResources:
         self.text_units = read_indexer_text_units(text_unit_df)
 
     def _setup_models(self) -> None:
-        api_key = self.api_key or Settings.graphrag_api_key
+        api_key = self.api_key or APP_SETTINGS.graphrag_api_key
         chat_config = self.chat_model_config or LanguageModelConfig(
             api_key=api_key,
             type=ModelType.Chat,
